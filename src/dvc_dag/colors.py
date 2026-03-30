@@ -9,14 +9,14 @@ import webcolors
 from dvc_dag.logger import logger
 
 
-def needs_white_text(name_color: str) -> bool:
+def needs_white_text(name_color: str, threshold: int = 128) -> bool:
     """Return True if the provided color needs a white text if used as background.
 
     From https://www.w3.org/TR/AERT/#color-contrast
     """
     rgb = webcolors.name_to_rgb(name_color)
     brightness = (rgb.red * 299 + rgb.green * 587 + rgb.blue * 114) / 1000
-    return brightness < 128  # Threshold: 0-255 scale  # noqa: PLR2004
+    return brightness < threshold  # 0-255 scale
 
 
 class Colors:

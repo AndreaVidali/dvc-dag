@@ -29,7 +29,9 @@ DEFAULT_NODE_OPTIONS: dict[str, str | int] = {
     "penwidth": "2",
     "fontname": "Cambria",
 }
-DEFAULT_EDGE_OPTIONS: dict[str, str] = {"penwidth": "2"}
+DEFAULT_EDGE_OPTIONS: dict[str, str] = {
+    "penwidth": "2",
+}
 
 
 def normalize_endpoint(endpoint: EdgeEndpoint) -> str:
