@@ -1,0 +1,94 @@
+schema: '2.0'
+stages:
+  import_data:
+    cmd: python tests/dvc_pipelines/data.py import-data
+    deps:
+    - path: tests/dvc_pipelines/data.py
+      hash: md5
+      md5: 899ccd00acfb1afcc70fc417afaaeb8b
+      size: 566
+    - path: tests/dvc_pipelines/files/raw.json
+      hash: md5
+      md5: e1ec31e5efcf10e4ab0fd5b9823c6b0c
+      size: 56
+    outs:
+    - path: tests/dvc_pipelines/files/imported.json
+      hash: md5
+      md5: 663bb5d85ec73889f7ad123320485e18
+      size: 44
+  import-data-blue:
+    cmd: python tests/dvc_pipelines/data.py import-data-blue
+    deps:
+    - path: tests/dvc_pipelines/data.py
+      hash: md5
+      md5: 214395a1d9c83062dc9fa09a70194928
+      size: 795
+    - path: tests/dvc_pipelines/files/raw_blue.json
+      hash: md5
+      md5: 05e4f87cfb80d1e17d8869e8d1486243
+      size: 64
+    outs:
+    - path: tests/dvc_pipelines/files/blue.json
+      hash: md5
+      md5: f94fb28e79bbfab95852c04a3e758f74
+      size: 52
+  import-data-red:
+    cmd: python tests/dvc_pipelines/data.py import-data-red
+    deps:
+    - path: tests/dvc_pipelines/data.py
+      hash: md5
+      md5: 214395a1d9c83062dc9fa09a70194928
+      size: 795
+    - path: tests/dvc_pipelines/files/raw_red.json
+      hash: md5
+      md5: 22defad271033ee6f4df419eacd13653
+      size: 70
+    outs:
+    - path: tests/dvc_pipelines/files/red.json
+      hash: md5
+      md5: 863ace0b15c2a5d9a38fb3d2d95039c3
+      size: 58
+  nested-import-data-blue:
+    cmd: python tests/dvc_pipelines/nested/data.py import-data-blue
+    deps:
+    - path: tests/dvc_pipelines/nested/data.py
+      hash: md5
+      md5: 8734d49a87cc45128afec9aecd08c7d1
+      size: 1057
+    - path: tests/dvc_pipelines/nested/files/raw_blue.json
+      hash: md5
+      md5: 05e4f87cfb80d1e17d8869e8d1486243
+      size: 64
+    outs:
+    - path: tests/dvc_pipelines/nested/files/blue.json
+      hash: md5
+      md5: f94fb28e79bbfab95852c04a3e758f74
+      size: 52
+  nested-import-data-red:
+    cmd: python tests/dvc_pipelines/nested/data.py import-data-red
+    deps:
+    - path: tests/dvc_pipelines/nested/data.py
+      hash: md5
+      md5: 8734d49a87cc45128afec9aecd08c7d1
+      size: 1057
+    - path: tests/dvc_pipelines/nested/files/raw_red.json
+      hash: md5
+      md5: 22defad271033ee6f4df419eacd13653
+      size: 70
+    outs:
+    - path: tests/dvc_pipelines/nested/files/red.json
+      hash: md5
+      md5: 863ace0b15c2a5d9a38fb3d2d95039c3
+      size: 58
+  nested-do-unrelated-stuff:
+    cmd: python tests/dvc_pipelines/nested/data.py do-unrelated-stuff
+    deps:
+    - path: tests/dvc_pipelines/nested/data.py
+      hash: md5
+      md5: 8734d49a87cc45128afec9aecd08c7d1
+      size: 1057
+    outs:
+    - path: tests/dvc_pipelines/nested/files/unrelated.json
+      hash: md5
+      md5: 848140eb737dc1749c603dbe99139d87
+      size: 28

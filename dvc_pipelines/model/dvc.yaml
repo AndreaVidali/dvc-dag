@@ -1,0 +1,41 @@
+stages:
+  nested-find-hyperparameters:
+    cmd: python tests/dvc_pipelines/nested/model.py find-hyperparameters
+    wdir: "../.."
+    deps:
+      - tests/dvc_pipelines/nested/model.py
+    outs:
+      - tests/dvc_pipelines/nested/files/hyperparameters.json:
+          cache: false
+    frozen: true
+
+  nested-train-model:
+    cmd: python tests/dvc_pipelines/nested/model.py train-model
+    wdir: "../.."
+    deps:
+      - tests/dvc_pipelines/nested/model.py
+      - tests/dvc_pipelines/nested/files/dataset.json
+      - tests/dvc_pipelines/nested/files/hyperparameters.json
+      - tests/dvc_pipelines/nested/files/blue.json
+    outs:
+      - tests/dvc_pipelines/nested/files/model.json:
+          cache: false
+    frozen: true
+
+  nested-train-models:
+    foreach:
+      - out_of_sample
+      - out_of_time
+      - full
+    do:
+      cmd: python tests/dvc_pipelines/nested/model.py train-model --kind ${item}
+      wdir: "../.."
+      deps:
+        - tests/dvc_pipelines/nested/model.py
+        - tests/dvc_pipelines/nested/files/dataset.json
+        - tests/dvc_pipelines/nested/files/hyperparameters.json
+        - tests/dvc_pipelines/nested/files/blue.json
+      outs:
+        - tests/dvc_pipelines/nested/files/model-${item}.json:
+            cache: false
+      frozen: true

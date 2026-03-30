@@ -1,0 +1,68 @@
+[project]
+name = "dvc-dag"
+version = "1.0.0"
+description = "Generate a clear diagram of your DVC pipeline."
+readme = "README.md"
+authors = [{ name = "Andrea Vidali", email = "andreavidali.me@gmail.com" }]
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+  "dvc>=3",
+  "pydot>=3.0.4",
+  "rich>=13.9.4",
+  "typer>=0.24.1",
+  "webcolors>=24.11.1",
+]
+
+[dependency-groups]
+dev = [
+  "deptry>=0.23.0",
+  "ipython>=8.31.0",
+  "pdbpp>=0.10.3",
+  "pytest>=8.3.4",
+  "ruff>=0.9.4",
+  "ty>=0.0.26",
+  "uv-sort>=0.6.0",
+]
+
+[project.scripts]
+dvc-dag = "dvc_dag.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 99
+target-version = "py310"
+output-format = "concise"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  "G004", # logging-f-string
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
+lines-between-types = 1
+known-first-party = ["dvc_dag"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/test**.py" = [
+  "S101",    # use of `assert`
+  "PLR2004", # magic value in comparison
+  "INP001",  # implicit-namespace-package
+  "ANN",     # flake8-annotations
+]
+
+[tool.deptry]
+known_first_party = ["dvc_dag"]
+
+[tool.deptry.per_rule_ignores]
+DEP002 = [
+  "dvc", # used for testing
+]

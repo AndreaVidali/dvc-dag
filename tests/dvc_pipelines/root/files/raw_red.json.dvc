@@ -1,0 +1,5 @@
+outs:
+- md5: 22defad271033ee6f4df419eacd13653
+  size: 70
+  hash: md5
+  path: raw_red.json

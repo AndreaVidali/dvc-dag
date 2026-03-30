@@ -1,0 +1,32 @@
+stages:
+  nested-do-unrelated-stuff:
+    cmd: python tests/dvc_pipelines/nested/data.py do-unrelated-stuff
+    wdir: "../.."
+    deps:
+      - tests/dvc_pipelines/nested/data.py
+    outs:
+      - tests/dvc_pipelines/nested/files/unrelated.json:
+          cache: false
+    frozen: true
+
+  nested-import-data-blue:
+    cmd: python tests/dvc_pipelines/nested/data.py import-data-blue
+    wdir: "../.."
+    deps:
+      - tests/dvc_pipelines/nested/files/raw_blue.json
+      - tests/dvc_pipelines/nested/data.py
+    outs:
+      - tests/dvc_pipelines/nested/files/blue.json:
+          cache: false
+    frozen: true
+
+  nested-import-data-red:
+    cmd: python tests/dvc_pipelines/nested/data.py import-data-red
+    wdir: "../.."
+    deps:
+      - tests/dvc_pipelines/nested/files/raw_red.json
+      - tests/dvc_pipelines/nested/data.py
+    outs:
+      - tests/dvc_pipelines/nested/files/red.json:
+          cache: false
+    frozen: true

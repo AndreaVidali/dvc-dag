@@ -1,0 +1,5 @@
+outs:
+- md5: 05e4f87cfb80d1e17d8869e8d1486243
+  size: 64
+  hash: md5
+  path: raw_blue.json

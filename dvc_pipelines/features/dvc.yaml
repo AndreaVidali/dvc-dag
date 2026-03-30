@@ -1,0 +1,12 @@
+stages:
+  nested-create-dataset:
+    cmd: python tests/dvc_pipelines/nested/features.py create-dataset
+    wdir: "../.."
+    deps:
+      - tests/dvc_pipelines/nested/features.py
+      - tests/dvc_pipelines/nested/files/blue.json
+      - tests/dvc_pipelines/nested/files/red.json
+    outs:
+      - tests/dvc_pipelines/nested/files/dataset.json:
+          cache: false
+    frozen: true
