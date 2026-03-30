@@ -4,12 +4,10 @@ import json
 
 from pathlib import Path
 
-import click
+import typer
 
 
-@click.group(name="cli")
-def cli() -> None:
-    """Data main entry point."""
+app = typer.Typer()
 
 
 def import_data(color: str) -> None:
@@ -23,19 +21,19 @@ def import_data(color: str) -> None:
         json.dump(imported_data, file, indent=4)
 
 
-@cli.command(name="import-data-blue")
+@app.command()
 def import_data_blue() -> None:
     """Import data blue."""
     import_data("blue")
 
 
-@cli.command(name="import-data-red")
+@app.command()
 def import_data_red() -> None:
     """Import data red."""
     import_data("red")
 
 
-@cli.command(name="do-unrelated-stuff")
+@app.command()
 def do_unrelated_stuff() -> None:
     """Do unrelated stuff."""
     with Path("tests/dvc_pipelines/root/files/unrelated.json").open("w") as file:
@@ -43,4 +41,4 @@ def do_unrelated_stuff() -> None:
 
 
 if __name__ == "__main__":
-    cli()
+    app()

@@ -4,15 +4,13 @@ import json
 
 from pathlib import Path
 
-import click
+import typer
 
 
-@click.group(name="cli")
-def cli() -> None:
-    """Features main entry point."""
+app = typer.Typer()
 
 
-@cli.command(name="create-dataset")
+@app.command()
 def create_dataset() -> None:
     """Create dataset."""
     with Path("tests/dvc_pipelines/root/files/blue.json").open() as file:
@@ -28,4 +26,4 @@ def create_dataset() -> None:
 
 
 if __name__ == "__main__":
-    cli()
+    app()

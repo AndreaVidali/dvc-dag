@@ -3,16 +3,15 @@
 import json
 
 from pathlib import Path
+from typing import Annotated
 
-import click
-
-
-@click.group(name="cli")
-def cli() -> None:
-    """Model main entry point."""
+import typer
 
 
-@cli.command(name="find-hyperparameters")
+app = typer.Typer()
+
+
+@app.command()
 def find_hyperparameters() -> None:
     """Find hyperparameters."""
     hyperp = {
@@ -24,9 +23,13 @@ def find_hyperparameters() -> None:
         json.dump(hyperp, file, indent=4)
 
 
-@cli.command(name="train-model")
-@click.option("--kind", type=click.STRING)
-def train_model(kind: str | None) -> None:
+@app.command()
+def train_model(
+    kind: Annotated[
+        str | None,
+        typer.Option("--kind"),
+    ] = None,
+) -> None:
     """Train model."""
     with Path("tests/dvc_pipelines/nested/files/dataset.json").open() as file:
         dataset = json.load(file)
@@ -55,4 +58,4 @@ def train_model(kind: str | None) -> None:
 
 
 if __name__ == "__main__":
-    cli()
+    app()

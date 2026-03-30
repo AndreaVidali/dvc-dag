@@ -26,7 +26,7 @@ dev = [
 ]
 
 [project.scripts]
-dvc-dag = "dvc_dag.cli:main"
+dvc-dag = "dvc_dag.cli:app"
 
 [build-system]
 requires = ["hatchling"]
