@@ -8,7 +8,7 @@ from typing import Annotated
 import typer
 
 from dvc_dag.draw import draw_dag_image, generate_dag, remove_transitivies
-from dvc_dag.logger import logger
+from dvc_dag.logger import configure_logging, logger
 
 
 app = typer.Typer()
@@ -76,8 +76,9 @@ def main(
             --merge-stage "train-models|kind" \\
             --merge-stage "dvc_pipelines/model/dvc.yaml:train-models|kind"
     """
+    configure_logging(level=logging.DEBUG if debug else logging.INFO)
+
     if debug:
-        logger.setLevel(logging.DEBUG)
         logger.debug("Debug mode enabled.")
 
     dag = generate_dag()
