@@ -1,3 +1,5 @@
+"""CLI main entry point."""
+
 import logging
 
 from pathlib import Path
@@ -14,6 +16,7 @@ app = typer.Typer()
 
 @app.command()
 def main(
+    *,
     debug: Annotated[
         bool,
         typer.Option(
@@ -36,7 +39,7 @@ def main(
         ),
     ] = Path("dvc_dag.png"),
     delete_text: Annotated[
-        list[str],
+        list[str] | None,
         typer.Option(
             "--delete-text",
             help=(
@@ -44,9 +47,9 @@ def main(
                 "Can be specified multiple times."
             ),
         ),
-    ] = [],
+    ] = None,
     merge_stage: Annotated[
-        list[str],
+        list[str] | None,
         typer.Option(
             "--merge-stage",
             help=(
@@ -56,7 +59,7 @@ def main(
                 "'path/to/dvc.yaml:stage_name|replacement'"
             ),
         ),
-    ] = [],
+    ] = None,
     colors_random_seed: Annotated[
         int,
         typer.Option(
@@ -83,13 +86,16 @@ def main(
     dag_tred = remove_transitivies(dag)
     logger.debug(f"Trimmed dag: {dag_tred}")
 
+    delete_text_values = delete_text or []
+    merge_stage_values = merge_stage or []
+
     dag_image = draw_dag_image(
         dag_tred,
-        path_text_to_delete=delete_text,
-        stages_merge=merge_stage,
+        path_text_to_delete=delete_text_values,
+        stages_merge=merge_stage_values,
         colors_random_seed=colors_random_seed,
     )
-    dag_image.write_png(out)
+    dag_image.write(str(out), format="png")
 
     typer.echo(f"DAG saved in {out}")
 

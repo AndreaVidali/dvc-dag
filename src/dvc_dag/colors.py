@@ -1,3 +1,5 @@
+"""Color helpers for DVC DAG rendering."""
+
 import random
 
 from copy import deepcopy
@@ -24,6 +26,7 @@ class Colors:
     """
 
     def __init__(self, random_seed: int = 42) -> None:
+        """Initialize the color palette and random seed."""
         self.category_to_color: dict[str, str] = {}
         self.available_colors = self.get_all_colors()
         random.seed(random_seed)

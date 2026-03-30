@@ -34,13 +34,14 @@ build-backend = "hatchling.build"
 
 [tool.ruff]
 line-length = 99
-target-version = "py310"
+target-version = "py314"
 output-format = "concise"
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-  "G004", # logging-f-string
+  "G004",   # logging-f-string
+  "COM812", # missing-trailing-comma (conflicting lint rule)
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -58,6 +59,9 @@ known-first-party = ["dvc_dag"]
   "INP001",  # implicit-namespace-package
   "ANN",     # flake8-annotations
 ]
+
+[tool.ty.terminal]
+output-format = "concise"
 
 [tool.deptry]
 known_first_party = ["dvc_dag"]

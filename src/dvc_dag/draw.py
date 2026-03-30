@@ -1,7 +1,12 @@
+"""Graph transformation and rendering helpers for DVC DAG output."""
+
+from __future__ import annotations
+
 import shutil
 import subprocess
 
 from copy import deepcopy
+from typing import TYPE_CHECKING
 
 import pydot
 
@@ -11,18 +16,40 @@ from dvc_dag.colors import Colors, needs_white_text
 from dvc_dag.logger import logger
 
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from pydot.classes import EdgeEndpoint
+
+
 ROOT_CATEGORY = "root"
 EDGE_NAME_SEPARATOR = "***"
-DEFAULT_NODE_OPTIONS = {"fontsize": 20, "penwidth": "2", "fontname": "Cambria"}
-DEFAULT_EDGE_OPTIONS = {"penwidth": "2"}
+DEFAULT_NODE_OPTIONS: dict[str, str | int] = {
+    "fontsize": 20,
+    "penwidth": "2",
+    "fontname": "Cambria",
+}
+DEFAULT_EDGE_OPTIONS: dict[str, str] = {"penwidth": "2"}
+
+
+def normalize_endpoint(endpoint: EdgeEndpoint) -> str:
+    """Return a string endpoint from pydot edge data."""
+    if isinstance(endpoint, str):
+        return endpoint
+
+    msg = f"Unsupported edge endpoint type: {type(endpoint).__name__}"
+    raise TypeError(msg)
 
 
 def get_all_nodes(graph: Dot) -> list[str]:
     """Return the list of nodes in the graph."""
     edges = graph.get_edge_list()
 
-    connected_nodes = [(edge.get_source(), edge.get_destination()) for edge in edges]
-    connected_nodes = [name for names in connected_nodes for name in names]
+    connected_nodes = [
+        normalize_endpoint(endpoint)
+        for edge in edges
+        for endpoint in (edge.get_source(), edge.get_destination())
+    ]
     connected_nodes = list(dict.fromkeys(connected_nodes))
 
     unconnected_nodes = [node.get_name() for node in graph.get_nodes()]
@@ -31,7 +58,7 @@ def get_all_nodes(graph: Dot) -> list[str]:
     return unconnected_nodes + connected_nodes
 
 
-def process_node_name(name: str, stages_merge: tuple[str]) -> str:
+def process_node_name(name: str, stages_merge: Sequence[str]) -> str:
     """Process the name of the node."""
     name = name.replace('"', "")
 
@@ -73,9 +100,10 @@ def encode_edge_name(source: str, dest: str) -> str:
     return source + EDGE_NAME_SEPARATOR + dest
 
 
-def decode_edge_name(name: str) -> list[str]:
+def decode_edge_name(name: str) -> tuple[str, str]:
     """Decode the edge name."""
-    return name.split(EDGE_NAME_SEPARATOR)
+    source, dest = name.split(EDGE_NAME_SEPARATOR, maxsplit=1)
+    return source, dest
 
 
 def escape_newlines(txt: str) -> str:
@@ -85,7 +113,7 @@ def escape_newlines(txt: str) -> str:
 
 def format_displayed_name(
     name: str,
-    path_text_to_delete: tuple[str],
+    path_text_to_delete: Sequence[str],
     fillcolor: str | None = None,
 ) -> str:
     """Format the name shown in the node.
@@ -97,8 +125,7 @@ def format_displayed_name(
     name = name.replace('"', "")
 
     if "\n" in name:
-        path = name.split("\n")[0]
-        stage = name.split("\n")[1]
+        path, stage = name.split("\n", maxsplit=1)
 
         for text in path_text_to_delete:
             path = path.replace(text, "")
@@ -113,15 +140,15 @@ def format_displayed_name(
 
 def format_nodes(
     graph_old: Dot,
-    path_text_to_delete: list[str],
-    stages_merge: list[str],
+    path_text_to_delete: Sequence[str],
+    stages_merge: Sequence[str],
     colors_random_seed: int,
-) -> dict[str, dict]:
+) -> dict[str, dict[str, str | int]]:
     """Format and filter the nodes."""
     colors = Colors(random_seed=colors_random_seed)
 
     all_nodes = get_all_nodes(graph_old)
-    nodes_to_add: dict[str, dict] = {}
+    nodes_to_add: dict[str, dict[str, str | int]] = {}
 
     for node in all_nodes:
         name = process_node_name(node, stages_merge=stages_merge)
@@ -157,13 +184,13 @@ def format_nodes(
     return nodes_to_add
 
 
-def format_edges(graph_old: Dot, stages_merge: tuple[str]) -> dict[str, dict]:
+def format_edges(graph_old: Dot, stages_merge: Sequence[str]) -> dict[str, dict[str, str]]:
     """Format the edges."""
-    edges_to_add: dict[str, dict] = {}
+    edges_to_add: dict[str, dict[str, str]] = {}
 
     for edge in graph_old.get_edges():
-        source = edge.get_source()
-        dest = edge.get_destination()
+        source = normalize_endpoint(edge.get_source())
+        dest = normalize_endpoint(edge.get_destination())
 
         display_source = process_node_name(source, stages_merge=stages_merge)
         display_dest = process_node_name(dest, stages_merge=stages_merge)
@@ -187,13 +214,17 @@ def format_edges(graph_old: Dot, stages_merge: tuple[str]) -> dict[str, dict]:
 
 def draw_dag_image(
     dag: str,
-    path_text_to_delete: list[str],
-    stages_merge: list[str],
+    path_text_to_delete: Sequence[str],
+    stages_merge: Sequence[str],
     colors_random_seed: int,
 ) -> Dot:
     """Starting from a dot file, process it and return the final dag."""
     graph_new = Dot(graph_type="digraph")
-    graph_old: Dot = pydot.graph_from_dot_data(dag)[0]
+    graphs = pydot.graph_from_dot_data(dag)
+    if not graphs:
+        msg = "Unable to parse DAG DOT data."
+        raise ValueError(msg)
+    graph_old = graphs[0]
 
     nodes_to_add = format_nodes(
         graph_old,
@@ -203,7 +234,7 @@ def draw_dag_image(
     )
 
     for node, options in nodes_to_add.items():
-        graph_new.add_node(Node(node, **options))
+        graph_new.add_node(Node(node, **options))  # ty:ignore[invalid-argument-type]
 
     edges_to_add = format_edges(
         graph_old,
@@ -212,7 +243,7 @@ def draw_dag_image(
 
     for name, options in edges_to_add.items():
         source, dest = decode_edge_name(name)
-        graph_new.add_edge(Edge(source, dest, **options))
+        graph_new.add_edge(Edge(source, dest, **options))  # ty:ignore[invalid-argument-type]
 
     return graph_new
 
