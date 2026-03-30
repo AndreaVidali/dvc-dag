@@ -255,32 +255,40 @@ def generate_dag() -> str:
     dvc_path = shutil.which("dvc")
 
     if not dvc_path:
-        msg = "DVC not found. Make sure it's installed and reacheable via poetry or uv."
+        msg = "DVC not found. Make sure it is installed and available on your PATH."
         raise FileNotFoundError(msg)
 
-    return subprocess.run(  # noqa: S603
-        [dvc_path, "dag", "--dot"],
-        stdout=subprocess.PIPE,
-        encoding="utf-8",
-        check=True,
-    ).stdout
+    try:
+        return subprocess.run(  # noqa: S603
+            [dvc_path, "dag", "--dot"],
+            capture_output=True,
+            encoding="utf-8",
+            check=True,
+        ).stdout
+    except subprocess.CalledProcessError as exc:
+        stderr = exc.stderr.strip() if exc.stderr else "The 'dvc dag --dot' command failed."
+        msg = f"Failed to generate the DVC DAG: {stderr}"
+        raise RuntimeError(msg) from exc
 
 
 def remove_transitivies(dvc_dag: str) -> str:
     """Execute the transitive reduction with the tred command from graphviz."""
+    tred_path = shutil.which("tred")
+    if not tred_path:
+        msg = "Graphviz 'tred' was not found. Install Graphviz and make sure it is on your PATH."
+        raise FileNotFoundError(msg)
+
     try:
-        dvc_dag_tred = subprocess.run(
-            ["tred"],  # noqa: S607
+        dvc_dag_tred = subprocess.run(  # noqa: S603
+            [tred_path],
             input=dvc_dag,
-            stdout=subprocess.PIPE,
+            capture_output=True,
             encoding="utf-8",
             check=True,
         ).stdout
-    except Exception as exc:
-        msg = (
-            "Error: 'tred' command failed — Graphviz may not be installed."
-            " Try: `brew install graphviz` (https://www.graphviz.org/download/)"
-        )
+    except subprocess.CalledProcessError as exc:
+        stderr = exc.stderr.strip() if exc.stderr else "The 'tred' command failed."
+        msg = f"Graphviz 'tred' failed while processing the DVC DAG: {stderr}"
         raise RuntimeError(msg) from exc
 
     return dvc_dag_tred
