@@ -13,8 +13,8 @@ install: ## install dependencies
 
 .PHONY: lint
 lint: ## lint code
-	uv run ruff format dvc_dag
-	uv run ruff check --fix dvc_dag
+	uv run ruff format src tests
+	uv run ruff check --fix src tests
 
 .PHONY: test
 test: ## run all tests
@@ -22,4 +22,4 @@ test: ## run all tests
 
 .PHONY: typing
 typing: ## check types
-	uv run mypy dvc_dag
+	uv run ty check
