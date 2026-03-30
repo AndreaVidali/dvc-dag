@@ -73,8 +73,8 @@ def main(
 
     Example:
         dvc-dag --delete-text "dvc_pipelines/" --delete-text "tests/" \\
-            --merge-stage "train-models=kind" \\
-            --merge-stage "dvc_pipelines/model/dvc.yaml|train-models=kind"
+            --merge-stage "train-models|kind" \\
+            --merge-stage "dvc_pipelines/model/dvc.yaml:train-models|kind"
     """
     if debug:
         logger.setLevel(logging.DEBUG)

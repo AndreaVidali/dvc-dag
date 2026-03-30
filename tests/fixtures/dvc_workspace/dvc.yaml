@@ -82,12 +82,10 @@ stages:
       --delete-text "dvc_pipelines/"
       --delete-text "tests/"
       --merge-stage "root-train-models|kind"
-      --merge-stage "dvc_pipelines/model/dvc.yaml|nested-train-models=kind"
+      --merge-stage "dvc_pipelines/model/dvc.yaml:nested-train-models|kind"
       --colors-random-seed 12
       --out docs/dvc_dag.png
-    deps:
-      - dvc_dag/draw.py
-      - dvc_dag/cli.py
     outs:
       - docs/dvc_dag.png:
           cache: false
+    frozen: true

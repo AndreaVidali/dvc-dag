@@ -63,6 +63,11 @@ known-first-party = ["dvc_dag"]
 [tool.ty.terminal]
 output-format = "concise"
 
+[tool.pytest.ini_options]
+filterwarnings = [
+  "ignore:'setParseAction' deprecated - use 'set_parse_action':DeprecationWarning",
+]
+
 [tool.deptry]
 known_first_party = ["dvc_dag"]
 

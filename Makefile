@@ -18,7 +18,7 @@ lint: ## lint code
 
 .PHONY: test
 test: ## run all tests
-	uv run pytest tests -vv
+	uv run pytest tests
 
 .PHONY: typing
 typing: ## check types
