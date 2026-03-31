@@ -14,6 +14,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "dvc_workspace"
+WORKSPACE_FIXTURE_RELATIVE = WORKSPACE_FIXTURE.relative_to(REPO_ROOT)
 VENV_BIN = REPO_ROOT / ".venv" / "bin"
 
 
@@ -47,7 +48,7 @@ class DvcWorkspace:
 
 @pytest.fixture
 def e2e_workspace(tmp_path: Path) -> DvcWorkspace:
-    """Create an isolated DVC repository from the committed test fixture."""
+    """Create an isolated Git repo containing the committed DVC fixture workspace."""
     dvc_bin = VENV_BIN / "dvc"
     if not dvc_bin.exists():
         pytest.skip("The end-to-end tests require .venv/bin/dvc.")
@@ -61,7 +62,9 @@ def e2e_workspace(tmp_path: Path) -> DvcWorkspace:
     if dot_bin is None or tred_bin is None:
         pytest.skip("The end-to-end tests require Graphviz 'dot' and 'tred'.")
 
-    workspace = tmp_path / "workspace"
+    repo_root = tmp_path / "repo"
+    workspace = repo_root / WORKSPACE_FIXTURE_RELATIVE
+    workspace.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(
         WORKSPACE_FIXTURE,
         workspace,
@@ -80,13 +83,7 @@ def e2e_workspace(tmp_path: Path) -> DvcWorkspace:
 
     subprocess.run(  # noqa: S603
         [str(git_bin), "init", "-q"],
-        cwd=workspace,
-        env=env,
-        check=True,
-    )
-    subprocess.run(  # noqa: S603
-        [str(dvc_bin), "init", "--quiet"],
-        cwd=workspace,
+        cwd=repo_root,
         env=env,
         check=True,
     )
