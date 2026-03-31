@@ -7,7 +7,7 @@ from typing import Annotated
 
 import typer
 
-from dvc_dag.draw import draw_dag_image, generate_dag, remove_transitivies
+from dvc_dag.draw import draw_dag_image, generate_dag, parse_stage_merges, remove_transitivies
 from dvc_dag.logger import configure_logging, logger
 
 
@@ -78,6 +78,21 @@ def main(
     """
     configure_logging(level=logging.DEBUG if debug else logging.INFO)
 
+    delete_text_values = delete_text or []
+    merge_stage_values = merge_stage or []
+    out = out.expanduser()
+
+    try:
+        parse_stage_merges(merge_stage_values)
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc), param_hint="--merge-stage") from exc
+
+    try:
+        out.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        msg = f"Cannot create the parent directory for {out!s}: {exc}"
+        raise typer.BadParameter(msg, param_hint="--out") from exc
+
     if debug:
         logger.debug("Debug mode enabled.")
 
@@ -87,16 +102,21 @@ def main(
     dag_tred = remove_transitivies(dag)
     logger.debug(f"Trimmed dag: {dag_tred}")
 
-    delete_text_values = delete_text or []
-    merge_stage_values = merge_stage or []
-
     dag_image = draw_dag_image(
         dag_tred,
         path_text_to_delete=delete_text_values,
-        stages_merge=merge_stage_values,
+        stage_merges=merge_stage_values,
         colors_random_seed=colors_random_seed,
     )
-    dag_image.write(str(out), format="png")
+    try:
+        write_succeeded = dag_image.write(str(out), format="png")
+    except OSError as exc:
+        msg = f"Cannot write the PNG to {out!s}: {exc}"
+        raise typer.BadParameter(msg, param_hint="--out") from exc
+
+    if not write_succeeded:
+        msg = f"Failed to write the PNG to {out!s}."
+        raise typer.BadParameter(msg, param_hint="--out")
 
     typer.echo(f"DAG saved in {out}")
 

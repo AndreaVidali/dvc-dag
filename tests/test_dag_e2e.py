@@ -67,7 +67,7 @@ def test_draw_dag_image_merges_and_trims_the_fixture_graph(
     graph = draw_dag_image(
         remove_transitivies(generate_dag()),
         path_text_to_delete=["dvc_pipelines/", "tests/"],
-        stages_merge=[
+        stage_merges=[
             "root-train-models|kind",
             "dvc_pipelines/model/dvc.yaml:nested-train-models|kind",
         ],
@@ -99,7 +99,7 @@ def test_cli_writes_a_png_from_the_fixture_workspace(
     """Run the CLI end to end against the isolated DVC fixture workspace."""
     e2e_workspace.activate(monkeypatch)
 
-    output_path = tmp_path / "dag.png"
+    output_path = tmp_path / "nested" / "output" / "dag.png"
     result = runner.invoke(
         app,
         [
@@ -122,3 +122,17 @@ def test_cli_writes_a_png_from_the_fixture_workspace(
     assert output_path.exists()
     assert output_path.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
     assert f"DAG saved in {output_path}" in result.stdout
+
+
+def test_cli_rejects_invalid_merge_stage_values() -> None:
+    """Fail fast on invalid merge-stage values before running DVC commands."""
+    result = runner.invoke(
+        app,
+        [
+            "--merge-stage",
+            "invalid-merge-stage",
+        ],
+    )
+
+    assert result.exit_code == 2
+    assert "Invalid --merge-stage value" in result.output

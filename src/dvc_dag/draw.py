@@ -17,7 +17,7 @@ from dvc_dag.logger import logger
 
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
 
     from pydot.classes import EdgeEndpoint
 
@@ -34,6 +34,51 @@ DEFAULT_EDGE_OPTIONS: dict[str, str] = {
 }
 
 
+def normalize_graph_name(name: str) -> str:
+    """Return a normalized DVC graph item name."""
+    return name.replace('"', "").replace("\\", "/")
+
+
+def parse_stage_merge(stage_merge: str) -> tuple[str, str]:
+    """Validate and parse a `--merge-stage` value."""
+    normalized_stage_merge = normalize_graph_name(stage_merge)
+    if normalized_stage_merge.count("|") != 1:
+        msg = (
+            f"Invalid --merge-stage value {stage_merge!r}. "
+            "Expected 'stage_name|replacement' or "
+            "'path/to/dvc.yaml:stage_name|replacement'."
+        )
+        raise ValueError(msg)
+
+    stage_name, replacement = normalized_stage_merge.split("|", maxsplit=1)
+    if not stage_name or not replacement:
+        msg = (
+            f"Invalid --merge-stage value {stage_merge!r}. "
+            "Both the stage name and replacement must be non-empty."
+        )
+        raise ValueError(msg)
+
+    return stage_name, replacement
+
+
+def parse_stage_merges(stage_merges: Sequence[str]) -> dict[str, str]:
+    """Return the normalized stage merge mapping."""
+    parsed_stage_merges: dict[str, str] = {}
+
+    for stage_merge in stage_merges:
+        stage_name, replacement = parse_stage_merge(stage_merge)
+        if stage_name in parsed_stage_merges and parsed_stage_merges[stage_name] != replacement:
+            msg = (
+                f"Conflicting --merge-stage values were provided for {stage_name!r}: "
+                f"{parsed_stage_merges[stage_name]!r} and {replacement!r}."
+            )
+            raise ValueError(msg)
+
+        parsed_stage_merges[stage_name] = replacement
+
+    return parsed_stage_merges
+
+
 def normalize_endpoint(endpoint: EdgeEndpoint) -> str:
     """Return a string endpoint from pydot edge data."""
     if isinstance(endpoint, str):
@@ -41,6 +86,20 @@ def normalize_endpoint(endpoint: EdgeEndpoint) -> str:
 
     msg = f"Unsupported edge endpoint type: {type(endpoint).__name__}"
     raise TypeError(msg)
+
+
+def make_node(name: str, options: Mapping[str, str | int]) -> Node:
+    """Return a pydot node with the provided attributes."""
+    node = Node(name)
+    node.obj_dict["attributes"] = dict(options)
+    return node
+
+
+def make_edge(source: str, dest: str, options: Mapping[str, str]) -> Edge:
+    """Return a pydot edge with the provided attributes."""
+    edge = Edge(source, dest)
+    edge.obj_dict["attributes"] = dict(options)
+    return edge
 
 
 def get_all_nodes(graph: Dot) -> list[str]:
@@ -55,39 +114,39 @@ def get_all_nodes(graph: Dot) -> list[str]:
     connected_nodes = list(dict.fromkeys(connected_nodes))
 
     unconnected_nodes = [node.get_name() for node in graph.get_nodes()]
-    unconnected_nodes = [node for node in unconnected_nodes if not node.endswith('.dvc"')]
+    unconnected_nodes = [
+        node for node in unconnected_nodes if not normalize_graph_name(node).endswith(".dvc")
+    ]
 
     return unconnected_nodes + connected_nodes
 
 
-def process_node_name(name: str, stages_merge: Sequence[str]) -> str:
+def process_node_name(name: str, stage_merges: Mapping[str, str]) -> str:
     """Process the name of the node."""
-    name = name.replace('"', "")
+    name = normalize_graph_name(name)
 
     is_dvc_parametrization = "@" in name
     if is_dvc_parametrization:
         # is a stage with parametrization
-        stage_name, parametrization = name.split("@")
+        stage_name, _parametrization = name.split("@", maxsplit=1)
+        if stage_name in stage_merges:
+            name = f"{stage_name}@{stage_merges[stage_name]}"
 
-        for stage_merge in stages_merge:
-            real_name, simpler_name = stage_merge.split("|")
-            if stage_name == real_name:
-                name = name.replace(parametrization, simpler_name)
-
-    is_nested_dvc_stage = ":" in name
-    is_file = "/" in name and not is_nested_dvc_stage
+    is_nested_dvc_stage = "dvc.yaml:" in name
+    is_file = name.endswith(".dvc")
 
     if is_nested_dvc_stage:
         # is a nested dvc stage
-        dvc_file, stage = name.split(":")
-        group = dvc_file.replace("/dvc.yaml", "")
+        dvc_file, stage = name.rsplit(":", maxsplit=1)
+        group = dvc_file.removesuffix("/dvc.yaml")
         new_name = f"{group}:\n{stage}"
 
     elif is_file:
         # is a file
-        name_splitted = name.split("/")
-        filepath = "/".join(name_splitted[:-1])
-        filename = name_splitted[-1]
+        filepath, separator, filename = name.rpartition("/")
+        if not separator:
+            filepath = ""
+            filename = name
         new_name = f"{filepath}:\n{filename}"
 
     else:
@@ -130,7 +189,7 @@ def format_displayed_name(
         path, stage = name.split("\n", maxsplit=1)
 
         for text in path_text_to_delete:
-            path = path.replace(text, "")
+            path = path.replace(text.replace("\\", "/"), "")
 
         if path in ("", ":"):
             return f"<<FONT COLOR='{text_color}'>{stage}</FONT>>"
@@ -143,7 +202,7 @@ def format_displayed_name(
 def format_nodes(
     graph_old: Dot,
     path_text_to_delete: Sequence[str],
-    stages_merge: Sequence[str],
+    stage_merges: Mapping[str, str],
     colors_random_seed: int,
 ) -> dict[str, dict[str, str | int]]:
     """Format and filter the nodes."""
@@ -153,7 +212,7 @@ def format_nodes(
     nodes_to_add: dict[str, dict[str, str | int]] = {}
 
     for node in all_nodes:
-        name = process_node_name(node, stages_merge=stages_merge)
+        name = process_node_name(node, stage_merges=stage_merges)
         options = deepcopy(DEFAULT_NODE_OPTIONS)
 
         if name.endswith('.dvc"'):  # is file
@@ -186,7 +245,7 @@ def format_nodes(
     return nodes_to_add
 
 
-def format_edges(graph_old: Dot, stages_merge: Sequence[str]) -> dict[str, dict[str, str]]:
+def format_edges(graph_old: Dot, stage_merges: Mapping[str, str]) -> dict[str, dict[str, str]]:
     """Format the edges."""
     edges_to_add: dict[str, dict[str, str]] = {}
 
@@ -194,8 +253,8 @@ def format_edges(graph_old: Dot, stages_merge: Sequence[str]) -> dict[str, dict[
         source = normalize_endpoint(edge.get_source())
         dest = normalize_endpoint(edge.get_destination())
 
-        display_source = process_node_name(source, stages_merge=stages_merge)
-        display_dest = process_node_name(dest, stages_merge=stages_merge)
+        display_source = process_node_name(source, stage_merges=stage_merges)
+        display_dest = process_node_name(dest, stage_merges=stage_merges)
 
         options = deepcopy(DEFAULT_EDGE_OPTIONS)
         encoded_name = encode_edge_name(display_source, display_dest)
@@ -217,35 +276,39 @@ def format_edges(graph_old: Dot, stages_merge: Sequence[str]) -> dict[str, dict[
 def draw_dag_image(
     dag: str,
     path_text_to_delete: Sequence[str],
-    stages_merge: Sequence[str],
+    stage_merges: Sequence[str],
     colors_random_seed: int,
 ) -> Dot:
     """Starting from a dot file, process it and return the final dag."""
     graph_new = Dot(graph_type="digraph")
+
+    parsed_stage_merges = parse_stage_merges(stage_merges)
+
     graphs = pydot.graph_from_dot_data(dag)
     if not graphs:
         msg = "Unable to parse DAG DOT data."
         raise ValueError(msg)
+
     graph_old = graphs[0]
 
     nodes_to_add = format_nodes(
         graph_old,
         path_text_to_delete=path_text_to_delete,
-        stages_merge=stages_merge,
+        stage_merges=parsed_stage_merges,
         colors_random_seed=colors_random_seed,
     )
 
     for node, options in nodes_to_add.items():
-        graph_new.add_node(Node(node, **options))  # ty:ignore[invalid-argument-type]
+        graph_new.add_node(make_node(node, options))
 
     edges_to_add = format_edges(
         graph_old,
-        stages_merge=stages_merge,
+        stage_merges=parsed_stage_merges,
     )
 
     for name, options in edges_to_add.items():
         source, dest = decode_edge_name(name)
-        graph_new.add_edge(Edge(source, dest, **options))  # ty:ignore[invalid-argument-type]
+        graph_new.add_edge(make_edge(source, dest, options))
 
     return graph_new
 
