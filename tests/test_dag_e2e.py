@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import importlib.metadata
+
 from typing import TYPE_CHECKING
 
 from typer.testing import CliRunner
 
 from dvc_dag.cli import app
-from dvc_dag.draw import draw_dag_image, generate_dag, remove_transitivies
+from dvc_dag.draw import draw_dag_image, generate_dag, remove_transitivities
 
 
 if TYPE_CHECKING:
@@ -43,11 +45,11 @@ def _edge_pairs(graph: Dot) -> set[tuple[str, str]]:
 
 
 def test_generate_dag_reads_the_fixture_workspace(
-    e2e_workspace: DvcWorkspace,
+    dvc_workspace: DvcWorkspace,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Generate the raw DAG from an isolated DVC fixture workspace."""
-    e2e_workspace.activate(monkeypatch)
+    dvc_workspace.activate(monkeypatch)
 
     dag = generate_dag()
 
@@ -58,11 +60,11 @@ def test_generate_dag_reads_the_fixture_workspace(
 
 
 def test_draw_dag_image_merges_and_trims_the_fixture_graph(
-    e2e_workspace: DvcWorkspace,
+    dvc_workspace: DvcWorkspace,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Trim transitive edges and merge parametrized stages in the rendered graph."""
-    e2e_workspace.activate(monkeypatch)
+    dvc_workspace.activate(monkeypatch)
 
     graph = draw_dag_image(
         remove_transitivities(generate_dag()),
@@ -92,12 +94,12 @@ def test_draw_dag_image_merges_and_trims_the_fixture_graph(
 
 
 def test_cli_writes_a_png_from_the_fixture_workspace(
-    e2e_workspace: DvcWorkspace,
+    dvc_workspace: DvcWorkspace,
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
     """Run the CLI end to end against the isolated DVC fixture workspace."""
-    e2e_workspace.activate(monkeypatch)
+    dvc_workspace.activate(monkeypatch)
 
     output_path = tmp_path / "nested" / "output" / "dag.png"
     result = runner.invoke(
@@ -124,6 +126,35 @@ def test_cli_writes_a_png_from_the_fixture_workspace(
     assert f"DAG saved in {output_path}" in result.stdout
 
 
+def test_console_script_writes_a_png_from_the_fixture_workspace(
+    dvc_workspace: DvcWorkspace,
+    tmp_path: Path,
+) -> None:
+    """Run the installed console script against the fixture workspace."""
+    output_path = tmp_path / "console-script" / "dag.png"
+    result = dvc_workspace.run_cli(
+        [
+            "--delete-text",
+            "dvc_pipelines/",
+            "--delete-text",
+            "tests/",
+            "--merge-stage",
+            "root-train-models|kind",
+            "--merge-stage",
+            "dvc_pipelines/model/dvc.yaml:nested-train-models|kind",
+            "--colors-random-seed",
+            "12",
+            "--out",
+            str(output_path),
+        ],
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert output_path.exists()
+    assert output_path.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+    assert f"DAG saved in {output_path}" in result.stdout
+
+
 def test_cli_rejects_invalid_merge_stage_values() -> None:
     """Fail fast on invalid merge-stage values before running DVC commands."""
     result = runner.invoke(
@@ -136,3 +167,84 @@ def test_cli_rejects_invalid_merge_stage_values() -> None:
 
     assert result.exit_code == 2
     assert "Invalid --merge-stage value" in result.output
+
+
+def test_console_script_reports_not_in_dvc_repo(
+    dvc_workspace: DvcWorkspace,
+    tmp_path: Path,
+) -> None:
+    """Report a friendly error outside a DVC repository."""
+    result = dvc_workspace.run_cli(
+        [],
+        cwd=tmp_path,
+        env=dvc_workspace.make_env(),
+    )
+
+    assert result.returncode == 1
+    assert "Error: Not inside a DVC repository." in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_console_script_reports_missing_dvc(
+    dvc_workspace: DvcWorkspace,
+) -> None:
+    """Report a friendly error when `dvc` is missing from PATH."""
+    result = dvc_workspace.run_cli(
+        [],
+        env=dvc_workspace.make_env(include_dvc=False),
+    )
+
+    assert result.returncode == 1
+    assert "Error: DVC was not found." in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_console_script_reports_missing_tred(
+    dvc_workspace: DvcWorkspace,
+) -> None:
+    """Report a friendly error when Graphviz is unavailable."""
+    result = dvc_workspace.run_cli(
+        [],
+        env=dvc_workspace.make_env(include_graphviz=False),
+    )
+
+    assert result.returncode == 1
+    assert "Error: Graphviz `tred` was not found." in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_console_script_debug_keeps_traceback(
+    dvc_workspace: DvcWorkspace,
+    tmp_path: Path,
+) -> None:
+    """Keep traceback-level detail available behind `--debug`."""
+    result = dvc_workspace.run_cli(
+        ["--debug"],
+        cwd=tmp_path,
+        env=dvc_workspace.make_env(),
+    )
+
+    assert result.returncode == 1
+    assert "Traceback" in result.stderr
+    assert "Not inside a DVC repository" in result.stderr
+
+
+def test_console_script_supports_version_flag(
+    dvc_workspace: DvcWorkspace,
+) -> None:
+    """Expose the installed package version from the console script."""
+    result = dvc_workspace.run_cli(["--version"])
+
+    assert result.returncode == 0
+    assert result.stdout.strip() == f"dvc-dag {importlib.metadata.version('dvc-dag')}"
+
+
+def test_module_entrypoint_supports_help(
+    dvc_workspace: DvcWorkspace,
+) -> None:
+    """Expose the CLI via `python -m dvc_dag`."""
+    result = dvc_workspace.run_module(["--help"])
+
+    assert result.returncode == 0
+    assert "Usage" in result.stdout
+    assert "--version" in result.stdout

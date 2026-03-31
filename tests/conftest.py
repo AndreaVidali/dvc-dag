@@ -8,14 +8,21 @@ import subprocess
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
+
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "dvc_workspace"
 WORKSPACE_FIXTURE_RELATIVE = WORKSPACE_FIXTURE.relative_to(REPO_ROOT)
 VENV_BIN = REPO_ROOT / ".venv" / "bin"
+CLI_BIN = VENV_BIN / "dvc-dag"
+PYTHON_BIN = VENV_BIN / "python"
 
 
 def _find_executable(name: str) -> Path | None:
@@ -38,6 +45,9 @@ class DvcWorkspace:
 
     root: Path
     env: dict[str, str]
+    base_path: str
+    dvc_bin_dir: Path
+    graphviz_bin_dir: Path
 
     def activate(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Apply the workspace environment to the active pytest context."""
@@ -45,9 +55,72 @@ class DvcWorkspace:
         for key in ("PATH", "DVC_GLOBAL_CONFIG_DIR", "DVC_SITE_CACHE_DIR"):
             monkeypatch.setenv(key, self.env[key])
 
+    def make_env(
+        self,
+        *,
+        include_dvc: bool = True,
+        include_graphviz: bool = True,
+        extra_env: Mapping[str, str] | None = None,
+    ) -> dict[str, str]:
+        """Return an environment dictionary for subprocess-based CLI tests."""
+        filtered_base_path = [
+            entry
+            for entry in self.base_path.split(os.pathsep)
+            if entry and entry not in {str(self.dvc_bin_dir), str(self.graphviz_bin_dir)}
+        ]
+        path_entries: list[str] = []
+        if include_dvc:
+            path_entries.append(str(self.dvc_bin_dir))
+        if include_graphviz:
+            path_entries.append(str(self.graphviz_bin_dir))
+
+        path_entries.extend(filtered_base_path)
+
+        env = self.env.copy()
+        env["PATH"] = os.pathsep.join(dict.fromkeys(path_entries))
+
+        if extra_env:
+            env.update(extra_env)
+
+        return env
+
+    def run_cli(
+        self,
+        args: Sequence[str],
+        *,
+        cwd: Path | None = None,
+        env: Mapping[str, str] | None = None,
+    ) -> subprocess.CompletedProcess[str]:
+        """Run the installed console script and return the completed process."""
+        return subprocess.run(  # noqa: S603
+            [str(CLI_BIN), *args],
+            capture_output=True,
+            cwd=cwd or self.root,
+            encoding="utf-8",
+            env=dict(env or self.env),
+            check=False,
+        )
+
+    def run_module(
+        self,
+        args: Sequence[str],
+        *,
+        cwd: Path | None = None,
+        env: Mapping[str, str] | None = None,
+    ) -> subprocess.CompletedProcess[str]:
+        """Run `python -m dvc_dag` and return the completed process."""
+        return subprocess.run(  # noqa: S603
+            [str(PYTHON_BIN), "-m", "dvc_dag", *args],
+            capture_output=True,
+            cwd=cwd or self.root,
+            encoding="utf-8",
+            env=dict(env or self.env),
+            check=False,
+        )
+
 
 @pytest.fixture
-def e2e_workspace(tmp_path: Path) -> DvcWorkspace:
+def dvc_workspace(tmp_path: Path) -> DvcWorkspace:
     """Create an isolated Git repo containing the committed DVC fixture workspace."""
     dvc_bin = VENV_BIN / "dvc"
     if not dvc_bin.exists():
@@ -72,6 +145,8 @@ def e2e_workspace(tmp_path: Path) -> DvcWorkspace:
     )
 
     path_entries = [str(dvc_bin.parent), str(dot_bin.parent)]
+    if tred_bin.parent != dot_bin.parent:
+        path_entries.append(str(tred_bin.parent))
     current_path = os.environ.get("PATH")
     if current_path:
         path_entries.append(current_path)
@@ -88,4 +163,10 @@ def e2e_workspace(tmp_path: Path) -> DvcWorkspace:
         check=True,
     )
 
-    return DvcWorkspace(root=workspace, env=env)
+    return DvcWorkspace(
+        root=workspace,
+        env=env,
+        base_path=current_path or "",
+        dvc_bin_dir=dvc_bin.parent,
+        graphviz_bin_dir=dot_bin.parent,
+    )
