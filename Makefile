@@ -1,5 +1,6 @@
 .DEFAULT_GOAL := help
 SHELL = bash
+DAG_OUTPUT ?= $(CURDIR)/dvc_dag.png
 
 
 .PHONY: help
@@ -23,3 +24,11 @@ test: ## run all tests
 .PHONY: typing
 typing: ## check types
 	uv run ty check
+
+.PHONY: dag
+dag: ## render the fixture DAG into ./dvc_dag.png
+	tmpdir=$$(mktemp -d); \
+	cd tests/fixtures/dvc_workspace && \
+	DVC_GLOBAL_CONFIG_DIR="$$tmpdir/.dvc-global" \
+	DVC_SITE_CACHE_DIR="$$tmpdir/.dvc-site-cache" \
+	uv run dvc-dag --out "$(DAG_OUTPUT)"
