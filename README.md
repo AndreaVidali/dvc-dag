@@ -39,6 +39,12 @@ Install the package from PyPI:
 pip install dvc-dag
 ```
 
+Or install it as an isolated CLI:
+
+```bash
+pipx install dvc-dag
+```
+
 ## Usage
 
 Generate a PNG in the current DVC repository:
@@ -53,6 +59,12 @@ Show all options:
 dvc-dag --help
 ```
 
+Show the installed version:
+
+```bash
+dvc-dag --version
+```
+
 Collapse parameterized stages:
 
 ```bash
@@ -65,6 +77,12 @@ The `--merge-stage` format is:
 stage_name|replacement
 path/to/dvc.yaml:stage_name|replacement
 ```
+
+## Troubleshooting
+
+- `DVC was not found`: install `dvc` and ensure it is on your `PATH`.
+- `Not inside a DVC repository`: run `dvc init` in the project first.
+- `Graphviz dot/tred was not found`: install Graphviz and ensure both tools are on your `PATH`.
 
 ## Development
 
