@@ -1,6 +1,8 @@
 .DEFAULT_GOAL := help
 SHELL = bash
 DAG_OUTPUT ?= $(CURDIR)/dvc_dag.png
+BUILD_OUTPUT_DIR ?= dist
+SMOKE_VENV ?= /tmp/dvc-dag-smoke-venv
 
 
 .PHONY: help
@@ -12,10 +14,14 @@ help: ## show this help
 install: ## install dependencies
 	uv sync
 
-.PHONY: lint
-lint: ## lint code
+.PHONY: format
+format: ## format and autofix code
 	uv run ruff format src tests
 	uv run ruff check --fix src tests
+
+.PHONY: lint
+lint: ## lint code without modifying files
+	uv run ruff check src tests
 
 .PHONY: test
 test: ## run all tests
@@ -25,9 +31,34 @@ test: ## run all tests
 typing: ## check types
 	uv run ty check
 
+.PHONY: check
+check: ## run lint, typing, and tests
+	$(MAKE) lint
+	$(MAKE) typing
+	$(MAKE) test
+
+.PHONY: build
+build: ## build wheel and sdist
+	uv build --out-dir "$(BUILD_OUTPUT_DIR)"
+
+.PHONY: smoke-wheel
+smoke-wheel: ## install the built wheel into a temp venv and smoke-test it
+	rm -rf "$(SMOKE_VENV)"
+	.venv/bin/python -m venv "$(SMOKE_VENV)"
+	uv pip install --python "$(SMOKE_VENV)/bin/python" "$(BUILD_OUTPUT_DIR)"/dvc_dag-*.whl
+	"$(SMOKE_VENV)/bin/dvc-dag" --version
+	"$(SMOKE_VENV)/bin/python" -m dvc_dag --help
+
+.PHONY: release-check
+release-check: ## run checks, build artifacts, and smoke-test the built wheel
+	$(MAKE) check
+	$(MAKE) build
+	$(MAKE) smoke-wheel
+
 .PHONY: dag
 dag: ## render the fixture DAG into ./dvc_dag.png
 	tmpdir=$$(mktemp -d); \
+	trap 'rm -rf "$$tmpdir"' EXIT; \
 	cd tests/fixtures/dvc_workspace && \
 	DVC_GLOBAL_CONFIG_DIR="$$tmpdir/.dvc-global" \
 	DVC_SITE_CACHE_DIR="$$tmpdir/.dvc-site-cache" \
