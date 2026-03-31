@@ -65,7 +65,7 @@ def test_draw_dag_image_merges_and_trims_the_fixture_graph(
     e2e_workspace.activate(monkeypatch)
 
     graph = draw_dag_image(
-        remove_transitivies(generate_dag()),
+        remove_transitivities(generate_dag()),
         path_text_to_delete=["dvc_pipelines/", "tests/"],
         stage_merges=[
             "root-train-models|kind",

@@ -27,11 +27,14 @@ EDGE_NAME_SEPARATOR = "***"
 DEFAULT_NODE_OPTIONS: dict[str, str | int] = {
     "fontsize": 20,
     "penwidth": "2",
-    "fontname": "Cambria",
 }
 DEFAULT_EDGE_OPTIONS: dict[str, str] = {
     "penwidth": "2",
 }
+
+
+class DvcDagError(RuntimeError):
+    """Raised for expected CLI-facing DVC DAG failures."""
 
 
 def normalize_graph_name(name: str) -> str:
@@ -284,10 +287,15 @@ def draw_dag_image(
 
     parsed_stage_merges = parse_stage_merges(stage_merges)
 
-    graphs = pydot.graph_from_dot_data(dag)
+    try:
+        graphs = pydot.graph_from_dot_data(dag)
+    except Exception as exc:
+        msg = "Unable to parse the DAG DOT data returned by DVC."
+        raise DvcDagError(msg) from exc
+
     if not graphs:
-        msg = "Unable to parse DAG DOT data."
-        raise ValueError(msg)
+        msg = "Unable to parse the DAG DOT data returned by DVC."
+        raise DvcDagError(msg)
 
     graph_old = graphs[0]
 
@@ -318,8 +326,8 @@ def generate_dag() -> str:
     dvc_path = shutil.which("dvc")
 
     if not dvc_path:
-        msg = "DVC not found. Make sure it is installed and available on your PATH."
-        raise FileNotFoundError(msg)
+        msg = "DVC was not found. Install `dvc` and make sure it is on your PATH."
+        raise DvcDagError(msg)
 
     try:
         return subprocess.run(  # noqa: S603
@@ -330,16 +338,31 @@ def generate_dag() -> str:
         ).stdout
     except subprocess.CalledProcessError as exc:
         stderr = exc.stderr.strip() if exc.stderr else "The 'dvc dag --dot' command failed."
+        stderr_lower = stderr.lower()
+        if "not inside" in stderr_lower and "dvc repository" in stderr_lower:
+            msg = "Not inside a DVC repository. Run `dvc init` in your project first."
+            raise DvcDagError(msg) from exc
+
         msg = f"Failed to generate the DVC DAG: {stderr}"
-        raise RuntimeError(msg) from exc
+        raise DvcDagError(msg) from exc
 
 
-def remove_transitivies(dvc_dag: str) -> str:
+def ensure_graphviz_dot() -> str:
+    """Return the Graphviz `dot` executable path."""
+    dot_path = shutil.which("dot")
+    if not dot_path:
+        msg = "Graphviz `dot` was not found. Install Graphviz and make sure it is on your PATH."
+        raise DvcDagError(msg)
+
+    return dot_path
+
+
+def remove_transitivities(dvc_dag: str) -> str:
     """Execute the transitive reduction with the tred command from graphviz."""
     tred_path = shutil.which("tred")
     if not tred_path:
-        msg = "Graphviz 'tred' was not found. Install Graphviz and make sure it is on your PATH."
-        raise FileNotFoundError(msg)
+        msg = "Graphviz `tred` was not found. Install Graphviz and make sure it is on your PATH."
+        raise DvcDagError(msg)
 
     try:
         dvc_dag_tred = subprocess.run(  # noqa: S603
@@ -351,7 +374,7 @@ def remove_transitivies(dvc_dag: str) -> str:
         ).stdout
     except subprocess.CalledProcessError as exc:
         stderr = exc.stderr.strip() if exc.stderr else "The 'tred' command failed."
-        msg = f"Graphviz 'tred' failed while processing the DVC DAG: {stderr}"
-        raise RuntimeError(msg) from exc
+        msg = f"Graphviz `tred` failed while processing the DVC DAG: {stderr}"
+        raise DvcDagError(msg) from exc
 
     return dvc_dag_tred
