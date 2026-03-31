@@ -1,38 +1,85 @@
-# DVC dag
+# dvc-dag
 
-Generate a clear diagram of your DVC pipeline.
+Generate a readable PNG diagram of your DVC pipeline.
+
+![Example DVC DAG](https://raw.githubusercontent.com/AndreaVidali/dvc-dag/main/docs/dvc_dag.png)
 
 ## Overview
 
-DVC provides a built-in DAG visualization using `dvc dag`, but in projects with multiple interconnected stages, it quickly becomes cluttered and hard to read.
+The bundled `dvc dag` command is useful, but larger pipelines quickly become hard to read.
 
-This tool enhances `dvc dag` by generating a **PNG image** of the DAG with improved readability. It applies various optimizations, including:
+`dvc-dag` renders the pipeline as a PNG and applies a few readability
+improvements:
 
-- **Trimming unnecessary edges** for a cleaner look.
-- **Compressing parameterized stages** to reduce clutter.
-- **Simplifying stage names** for better clarity.
-- **Using colors and shapes** to distinguish different types of nodes.
+- trims transitive edges
+- collapses parameterized stages when requested
+- simplifies displayed paths
+- uses colors and shapes to distinguish nodes
 
 ## Requirements
 
-This tool requires **Graphviz** to process and render the DAG (installed via brew).
+`dvc-dag` supports Python 3.10 and newer.
 
-🔗 [Download and install Graphviz](https://graphviz.org/download/) before using this tool.
+`dvc-dag` must be run inside a Git repository initialized with DVC.
+
+It also requires Graphviz on your `PATH`, specifically the `dot` and `tred`
+executables.
+
+Install Graphviz with your system package manager:
+
+- macOS: `brew install graphviz`
+- Debian/Ubuntu: `sudo apt-get install graphviz`
+- Windows: install Graphviz from <https://graphviz.org/download/>
+
+## Installation
+
+Install the package from PyPI:
+
+```bash
+pip install dvc-dag
+```
 
 ## Usage
 
-Generate the DAG image by running:
+Generate a PNG in the current DVC repository:
 
 ```bash
-dvc-dag
+dvc-dag --out docs/dvc_dag.png
 ```
 
-For additional customization options, run:
+Show all options:
 
 ```bash
 dvc-dag --help
 ```
 
+Collapse parameterized stages:
+
+```bash
+dvc-dag --merge-stage "train-models|kind"
+```
+
+The `--merge-stage` format is:
+
+```text
+stage_name|replacement
+path/to/dvc.yaml:stage_name|replacement
+```
+
 ## Development
 
-This repository includes dummy DVC pipelines used solely for testing purposes.
+The repository includes committed DVC fixture workspaces under `tests/fixtures/`
+for end-to-end testing.
+
+You can try the CLI manually against the committed fixture workspace:
+
+```bash
+cd tests/fixtures/dvc_workspace
+uv run dvc-dag --out /tmp/dvc_dag.png
+```
+
+Or render the fixture DAG straight from the repository root:
+
+```bash
+make dag
+```
