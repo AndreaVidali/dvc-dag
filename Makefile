@@ -14,13 +14,19 @@ help: ## show this help
 install: ## install dependencies
 	uv sync
 
+.PHONY: hooks
+hooks: ## install pre-commit hooks
+	uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre-push
+
 .PHONY: format
 format: ## format and autofix code
+	uv run uv-sort pyproject.toml
 	uv run ruff format src tests
 	uv run ruff check --fix src tests
 
 .PHONY: lint
 lint: ## lint code without modifying files
+	uv run uv-sort --check pyproject.toml
 	uv run ruff check src tests
 
 .PHONY: test
@@ -31,10 +37,15 @@ test: ## run all tests
 typing: ## check types
 	uv run ty check
 
+.PHONY: deptry
+deptry: ## check dependency declarations
+	uv run deptry .
+
 .PHONY: check
-check: ## run lint, typing, and tests
+check: ## run lint, typing, deptry, and tests
 	$(MAKE) lint
 	$(MAKE) typing
+	$(MAKE) deptry
 	$(MAKE) test
 
 .PHONY: build
