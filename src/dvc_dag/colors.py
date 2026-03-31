@@ -29,7 +29,7 @@ class Colors:
         """Initialize the color palette and random seed."""
         self.category_to_color: dict[str, str] = {}
         self.available_colors = self.get_all_colors()
-        random.seed(random_seed)
+        self.random = random.Random(random_seed)  # noqa: S311
 
     def get_all_colors(self) -> list[str]:
         """Return the entire palette."""
@@ -41,7 +41,7 @@ class Colors:
             logger.warning("All available colors have been used, resetting the palette.")
             self.available_colors = self.get_all_colors()
 
-        picked_color = random.choice(self.available_colors)  # noqa: S311
+        picked_color = self.random.choice(self.available_colors)
         self.available_colors.remove(picked_color)
         return picked_color
 
