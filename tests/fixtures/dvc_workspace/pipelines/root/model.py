@@ -1,4 +1,4 @@
-"""Nested test pipeline model commands."""
+"""Root test pipeline model commands."""
 
 import json
 
@@ -19,7 +19,7 @@ def find_hyperparameters() -> None:
         "beta": 7,
     }
 
-    with Path("tests/dvc_pipelines/nested/files/hyperparameters.json").open("w") as file:
+    with Path("pipelines/root/files/hyperparameters.json").open("w") as file:
         json.dump(hyperp, file, indent=4)
 
 
@@ -31,15 +31,15 @@ def train_model(
     ] = None,
 ) -> None:
     """Train model."""
-    with Path("tests/dvc_pipelines/nested/files/dataset.json").open() as file:
+    with Path("pipelines/root/files/dataset.json").open() as file:
         dataset = json.load(file)
 
-    with Path("tests/dvc_pipelines/nested/files/hyperparameters.json").open() as file:
+    with Path("pipelines/root/files/hyperparameters.json").open() as file:
         hyperp = json.load(file)
 
     # this is to check that tred works properly, it should trim out the edge between
     # import-data-blue and train-model
-    with Path("tests/dvc_pipelines/nested/files/blue.json").open() as file:
+    with Path("pipelines/root/files/blue.json").open() as file:
         data_blue = json.load(file)
 
     left = "_".join(list(dataset.keys()))
@@ -49,7 +49,7 @@ def train_model(
 
     model = {left: right}
 
-    directory = Path("tests/dvc_pipelines/nested/files/")
+    directory = Path("pipelines/root/files/")
     filename = f"model-{split}.json" if split else "model.json"
     filepath = directory / filename
 

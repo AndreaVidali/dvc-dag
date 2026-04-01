@@ -66,10 +66,10 @@ def test_process_node_name_supports_windows_style_paths() -> None:
     )
     assert (
         process_node_name(
-            r"tests\dvc_pipelines\root\files\raw_blue.json.dvc",
+            r"pipelines\root\files\raw_blue.json.dvc",
             stage_collapses=stage_collapses,
         )
-        == '"tests/dvc_pipelines/root/files:\nraw_blue.json.dvc"'
+        == '"pipelines/root/files:\nraw_blue.json.dvc"'
     )
 
 
@@ -91,7 +91,7 @@ def test_format_nodes_formats_files_and_collapsed_stage_labels() -> None:
         """
         digraph {
             "dvc_pipelines/model/dvc.yaml:nested-train-models@full"
-                -> "tests/dvc_pipelines/root/files/raw_blue.json.dvc";
+                -> "pipelines/root/files/raw_blue.json.dvc";
         }
         """,
     )
@@ -101,13 +101,13 @@ def test_format_nodes_formats_files_and_collapsed_stage_labels() -> None:
 
     formatted_nodes = format_nodes(
         graph,
-        path_text_to_delete=["tests/dvc_pipelines/"],
+        path_text_to_delete=["pipelines/"],
         stage_collapses=stage_collapses,
         colors_random_seed=11,
     )
 
     collapsed_stage = '"dvc_pipelines/model:\nnested-train-models@{split}"'
-    data_file = '"tests/dvc_pipelines/root/files:\nraw_blue.json.dvc"'
+    data_file = '"pipelines/root/files:\nraw_blue.json.dvc"'
     collapsed_stage_label = formatted_nodes[collapsed_stage]["label"]
     data_file_label = formatted_nodes[data_file]["label"]
 

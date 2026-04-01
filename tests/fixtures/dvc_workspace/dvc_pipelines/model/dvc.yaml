@@ -1,24 +1,24 @@
 stages:
   nested-find-hyperparameters:
-    cmd: python tests/dvc_pipelines/nested/model.py find-hyperparameters
+    cmd: python pipelines/nested/model.py find-hyperparameters
     wdir: "../.."
     deps:
-      - tests/dvc_pipelines/nested/model.py
+      - pipelines/nested/model.py
     outs:
-      - tests/dvc_pipelines/nested/files/hyperparameters.json:
+      - pipelines/nested/files/hyperparameters.json:
           cache: false
     frozen: true
 
   nested-train-model:
-    cmd: python tests/dvc_pipelines/nested/model.py train-model
+    cmd: python pipelines/nested/model.py train-model
     wdir: "../.."
     deps:
-      - tests/dvc_pipelines/nested/model.py
-      - tests/dvc_pipelines/nested/files/dataset.json
-      - tests/dvc_pipelines/nested/files/hyperparameters.json
-      - tests/dvc_pipelines/nested/files/blue.json
+      - pipelines/nested/model.py
+      - pipelines/nested/files/dataset.json
+      - pipelines/nested/files/hyperparameters.json
+      - pipelines/nested/files/blue.json
     outs:
-      - tests/dvc_pipelines/nested/files/model.json:
+      - pipelines/nested/files/model.json:
           cache: false
     frozen: true
 
@@ -28,14 +28,14 @@ stages:
       - out_of_time
       - full
     do:
-      cmd: python tests/dvc_pipelines/nested/model.py train-model --split ${item}
+      cmd: python pipelines/nested/model.py train-model --split ${item}
       wdir: "../.."
       deps:
-        - tests/dvc_pipelines/nested/model.py
-        - tests/dvc_pipelines/nested/files/dataset.json
-        - tests/dvc_pipelines/nested/files/hyperparameters.json
-        - tests/dvc_pipelines/nested/files/blue.json
+        - pipelines/nested/model.py
+        - pipelines/nested/files/dataset.json
+        - pipelines/nested/files/hyperparameters.json
+        - pipelines/nested/files/blue.json
       outs:
-        - tests/dvc_pipelines/nested/files/model-${item}.json:
+        - pipelines/nested/files/model-${item}.json:
             cache: false
       frozen: true

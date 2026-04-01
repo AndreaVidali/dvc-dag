@@ -55,7 +55,7 @@ def test_generate_dag_reads_the_fixture_workspace(
 
     assert '"root-train-models@full";' in dag
     assert '"dvc_pipelines/model/dvc.yaml:nested-train-models@out_of_sample";' in dag
-    assert '"tests/dvc_pipelines/root/files/raw_blue.json.dvc" -> "root-import-data-blue";' in dag
+    assert '"pipelines/root/files/raw_blue.json.dvc" -> "root-import-data-blue";' in dag
     assert '"root-import-data-blue" -> "root-train-model";' in dag
 
 

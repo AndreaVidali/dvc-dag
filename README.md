@@ -2,7 +2,7 @@
 
 Generate a readable PNG diagram of your DVC pipeline.
 
-![Example DVC DAG](https://raw.githubusercontent.com/AndreaVidali/dvc-dag/main/docs/dvc_dag.png)
+![Example DVC DAG](https://raw.githubusercontent.com/AndreaVidali/dvc-dag/tests/fixtures/dvc_workspace/docs/dvc_dag.png)
 
 ## Overview
 

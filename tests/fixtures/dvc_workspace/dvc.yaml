@@ -1,62 +1,62 @@
 stages:
   root-do-unrelated-stuff:
-    cmd: python tests/dvc_pipelines/root/data.py do-unrelated-stuff
+    cmd: python pipelines/root/data.py do-unrelated-stuff
     deps:
-      - tests/dvc_pipelines/root/data.py
+      - pipelines/root/data.py
     outs:
-      - tests/dvc_pipelines/root/files/unrelated.json:
+      - pipelines/root/files/unrelated.json:
           cache: false
     frozen: true
 
   root-import-data-blue:
-    cmd: python tests/dvc_pipelines/root/data.py import-data-blue
+    cmd: python pipelines/root/data.py import-data-blue
     deps:
-      - tests/dvc_pipelines/root/files/raw_blue.json
-      - tests/dvc_pipelines/root/data.py
+      - pipelines/root/files/raw_blue.json
+      - pipelines/root/data.py
     outs:
-      - tests/dvc_pipelines/root/files/blue.json:
+      - pipelines/root/files/blue.json:
           cache: false
     frozen: true
 
   root-import-data-red:
-    cmd: python tests/dvc_pipelines/root/data.py import-data-red
+    cmd: python pipelines/root/data.py import-data-red
     deps:
-      - tests/dvc_pipelines/root/files/raw_red.json
-      - tests/dvc_pipelines/root/data.py
+      - pipelines/root/files/raw_red.json
+      - pipelines/root/data.py
     outs:
-      - tests/dvc_pipelines/root/files/red.json:
+      - pipelines/root/files/red.json:
           cache: false
     frozen: true
 
   root-create-dataset:
-    cmd: python tests/dvc_pipelines/root/features.py
+    cmd: python pipelines/root/features.py
     deps:
-      - tests/dvc_pipelines/root/features.py
-      - tests/dvc_pipelines/root/files/blue.json
-      - tests/dvc_pipelines/root/files/red.json
+      - pipelines/root/features.py
+      - pipelines/root/files/blue.json
+      - pipelines/root/files/red.json
     outs:
-      - tests/dvc_pipelines/root/files/dataset.json:
+      - pipelines/root/files/dataset.json:
           cache: false
     frozen: true
 
   root-find-hyperparameters:
-    cmd: python tests/dvc_pipelines/root/model.py find-hyperparameters
+    cmd: python pipelines/root/model.py find-hyperparameters
     deps:
-      - tests/dvc_pipelines/root/model.py
+      - pipelines/root/model.py
     outs:
-      - tests/dvc_pipelines/root/files/hyperparameters.json:
+      - pipelines/root/files/hyperparameters.json:
           cache: false
     frozen: true
 
   root-train-model:
-    cmd: python tests/dvc_pipelines/root/model.py train-model
+    cmd: python pipelines/root/model.py train-model
     deps:
-      - tests/dvc_pipelines/root/model.py
-      - tests/dvc_pipelines/root/files/dataset.json
-      - tests/dvc_pipelines/root/files/hyperparameters.json
-      - tests/dvc_pipelines/root/files/blue.json
+      - pipelines/root/model.py
+      - pipelines/root/files/dataset.json
+      - pipelines/root/files/hyperparameters.json
+      - pipelines/root/files/blue.json
     outs:
-      - tests/dvc_pipelines/root/files/model.json:
+      - pipelines/root/files/model.json:
           cache: false
     frozen: true
 
@@ -66,14 +66,14 @@ stages:
       - out_of_time
       - full
     do:
-      cmd: python tests/dvc_pipelines/root/model.py train-model --split ${item}
+      cmd: python pipelines/root/model.py train-model --split ${item}
       deps:
-        - tests/dvc_pipelines/root/model.py
-        - tests/dvc_pipelines/root/files/dataset.json
-        - tests/dvc_pipelines/root/files/hyperparameters.json
-        - tests/dvc_pipelines/root/files/blue.json
+        - pipelines/root/model.py
+        - pipelines/root/files/dataset.json
+        - pipelines/root/files/hyperparameters.json
+        - pipelines/root/files/blue.json
       outs:
-        - tests/dvc_pipelines/root/files/model-${item}.json:
+        - pipelines/root/files/model-${item}.json:
             cache: false
       frozen: true
 
