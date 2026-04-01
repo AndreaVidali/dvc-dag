@@ -1,0 +1,61 @@
+stages:
+  sync-listings:
+    cmd: python pipelines/ingestion.py sync-listings
+    deps:
+      - pipelines/ingestion.py
+      - data/listings_raw.json
+    outs:
+      - data/listings.json:
+          cache: false
+    frozen: true
+
+  sync-neighborhood-profiles:
+    cmd: python pipelines/ingestion.py sync-neighborhood-profiles
+    deps:
+      - pipelines/ingestion.py
+      - data/neighborhood_profiles_raw.json
+    outs:
+      - data/neighborhood_profiles.json:
+          cache: false
+    frozen: true
+
+  sync-market-comps:
+    cmd: python pipelines/ingestion.py sync-market-comps
+    deps:
+      - pipelines/ingestion.py
+      - data/market_comps_raw.json
+    outs:
+      - data/market_comps.json:
+          cache: false
+    frozen: true
+
+  build-analytics-base:
+    cmd: python pipelines/preprocessing.py build-analytics-base
+    deps:
+      - pipelines/preprocessing.py
+      - data/listings.json
+      - data/neighborhood_profiles.json
+      - data/market_comps.json
+    outs:
+      - data/analytics_base.json:
+          cache: false
+    frozen: true
+
+  publish-project-dag:
+    cmd: dvc-dag
+      --delete-text "pipelines/"
+      --delete-text "stages/"
+      --collapse-stage "stages/model/dvc.yaml:train-candidate-models=family"
+      --colors-random-seed 12
+      --out docs/dvc_project_dag.png
+    deps:
+      - ../../../src/dvc_dag/cli.py
+      - ../../../src/dvc_dag/colors.py
+      - ../../../src/dvc_dag/draw.py
+      - ../../../src/dvc_dag/logger.py
+      - data/baseline_model.json
+      - data/model_card.json
+    outs:
+      - docs/dvc_project_dag.png:
+          cache: false
+    frozen: false

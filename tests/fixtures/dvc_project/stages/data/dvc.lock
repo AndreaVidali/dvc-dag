@@ -1,0 +1,58 @@
+schema: '2.0'
+stages:
+  normalize-listings:
+    cmd: python pipelines/preprocessing.py normalize-listings
+    deps:
+    - path: data/listings.json
+      hash: md5
+      md5: 46bd3f2d79b13039872e64e593e9c3e3
+      size: 728
+    - path: pipelines/preprocessing.py
+      hash: md5
+      md5: 2695580e187c81ab661f23733c3a304a
+      size: 5071
+    outs:
+    - path: data/listings_normalized.json
+      hash: md5
+      md5: 883f519e639de66f776c40a6486dd76b
+      size: 741
+  normalize-comps:
+    cmd: python pipelines/preprocessing.py normalize-comps
+    deps:
+    - path: data/market_comps.json
+      hash: md5
+      md5: 2813cd1f8a1d34e09144cfc1ab8f08bd
+      size: 513
+    - path: pipelines/preprocessing.py
+      hash: md5
+      md5: 2695580e187c81ab661f23733c3a304a
+      size: 5071
+    outs:
+    - path: data/market_comps_normalized.json
+      hash: md5
+      md5: de6109a1a95e3ab1b3fdb219ce42530c
+      size: 400
+  join-market-context:
+    cmd: python pipelines/preprocessing.py join-market-context
+    deps:
+    - path: data/analytics_base.json
+      hash: md5
+      md5: 27373c06b57c9b78a7644bb362000386
+      size: 1460
+    - path: data/listings_normalized.json
+      hash: md5
+      md5: 883f519e639de66f776c40a6486dd76b
+      size: 741
+    - path: data/market_comps_normalized.json
+      hash: md5
+      md5: de6109a1a95e3ab1b3fdb219ce42530c
+      size: 400
+    - path: pipelines/preprocessing.py
+      hash: md5
+      md5: 2695580e187c81ab661f23733c3a304a
+      size: 5071
+    outs:
+    - path: data/market_context.json
+      hash: md5
+      md5: 737c1e48e5c782ba2d6c884bf1031457
+      size: 1578

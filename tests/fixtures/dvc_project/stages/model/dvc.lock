@@ -1,0 +1,156 @@
+schema: '2.0'
+stages:
+  search-hyperparameters:
+    cmd: python pipelines/training.py search-hyperparameters
+    deps:
+    - path: data/feature_matrix.json
+      hash: md5
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863
+    - path: pipelines/training.py
+      hash: md5
+      md5: 9ef9a1a775019ddf0778d76684f56f44
+      size: 3371
+    outs:
+    - path: data/hyperparameters.json
+      hash: md5
+      md5: ee249322e2cce6bc573685083d45bb51
+      size: 77
+  train-baseline-model:
+    cmd: python pipelines/training.py train-baseline-model
+    deps:
+    - path: data/feature_matrix.json
+      hash: md5
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863
+    - path: data/hyperparameters.json
+      hash: md5
+      md5: ee249322e2cce6bc573685083d45bb51
+      size: 77
+    - path: data/market_context.json
+      hash: md5
+      md5: 737c1e48e5c782ba2d6c884bf1031457
+      size: 1578
+    - path: pipelines/training.py
+      hash: md5
+      md5: 9ef9a1a775019ddf0778d76684f56f44
+      size: 3371
+    outs:
+    - path: data/baseline_model.json
+      hash: md5
+      md5: 90c3c3e9345c644cc2023c24e0311d08
+      size: 66
+  evaluate-model:
+    cmd: python pipelines/evaluation.py evaluate-model
+    deps:
+    - path: data/baseline_model.json
+      hash: md5
+      md5: 90c3c3e9345c644cc2023c24e0311d08
+      size: 66
+    - path: data/feature_matrix.json
+      hash: md5
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863
+    - path: pipelines/evaluation.py
+      hash: md5
+      md5: e8a4b823a9623b38da7a47ddde0e7350
+      size: 1845
+    outs:
+    - path: data/evaluation_report.json
+      hash: md5
+      md5: 883c1518fe1619c3ee4520bbbfb5ab2e
+      size: 44
+  build-model-card:
+    cmd: python pipelines/evaluation.py build-model-card
+    deps:
+    - path: data/baseline_model.json
+      hash: md5
+      md5: 90c3c3e9345c644cc2023c24e0311d08
+      size: 66
+    - path: data/evaluation_report.json
+      hash: md5
+      md5: 883c1518fe1619c3ee4520bbbfb5ab2e
+      size: 44
+    - path: pipelines/evaluation.py
+      hash: md5
+      md5: e8a4b823a9623b38da7a47ddde0e7350
+      size: 1845
+    outs:
+    - path: data/model_card.json
+      hash: md5
+      md5: 8cb46c6a0735c5b58a100ad40fd1c114
+      size: 101
+  train-candidate-models@linear:
+    cmd: python pipelines/training.py train-candidate-models --family linear
+    deps:
+    - path: data/feature_matrix.json
+      hash: md5
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863
+    - path: data/hyperparameters.json
+      hash: md5
+      md5: ee249322e2cce6bc573685083d45bb51
+      size: 77
+    - path: data/market_context.json
+      hash: md5
+      md5: 737c1e48e5c782ba2d6c884bf1031457
+      size: 1578
+    - path: pipelines/training.py
+      hash: md5
+      md5: 9ef9a1a775019ddf0778d76684f56f44
+      size: 3371
+    outs:
+    - path: data/candidate_model-linear.json
+      hash: md5
+      md5: ab5edbea57c47ffabe8da77ddaa15182
+      size: 53
+  train-candidate-models@random_forest:
+    cmd: python pipelines/training.py train-candidate-models --family 
+      random_forest
+    deps:
+    - path: data/feature_matrix.json
+      hash: md5
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863
+    - path: data/hyperparameters.json
+      hash: md5
+      md5: ee249322e2cce6bc573685083d45bb51
+      size: 77
+    - path: data/market_context.json
+      hash: md5
+      md5: 737c1e48e5c782ba2d6c884bf1031457
+      size: 1578
+    - path: pipelines/training.py
+      hash: md5
+      md5: 9ef9a1a775019ddf0778d76684f56f44
+      size: 3371
+    outs:
+    - path: data/candidate_model-random_forest.json
+      hash: md5
+      md5: fba1fb1b89bcb99f8f1e5589ee881e6d
+      size: 60
+  train-candidate-models@gradient_boosting:
+    cmd: python pipelines/training.py train-candidate-models --family 
+      gradient_boosting
+    deps:
+    - path: data/feature_matrix.json
+      hash: md5
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863
+    - path: data/hyperparameters.json
+      hash: md5
+      md5: ee249322e2cce6bc573685083d45bb51
+      size: 77
+    - path: data/market_context.json
+      hash: md5
+      md5: 737c1e48e5c782ba2d6c884bf1031457
+      size: 1578
+    - path: pipelines/training.py
+      hash: md5
+      md5: 9ef9a1a775019ddf0778d76684f56f44
+      size: 3371
+    outs:
+    - path: data/candidate_model-gradient_boosting.json
+      hash: md5
+      md5: cc2ad9306399b9611e01fb48ee372573
+      size: 64

@@ -1,0 +1,108 @@
+schema: '2.0'
+stages:
+  sync-listings:
+    cmd: python pipelines/ingestion.py sync-listings
+    deps:
+    - path: data/listings_raw.json
+      hash: md5
+      md5: d4e82b490fec4232ca768761c0ed8380
+      size: 729
+    - path: pipelines/ingestion.py
+      hash: md5
+      md5: 8428d178db25b41ea8ee94b657eec4c3
+      size: 2653
+    outs:
+    - path: data/listings.json
+      hash: md5
+      md5: 46bd3f2d79b13039872e64e593e9c3e3
+      size: 728
+  sync-neighborhood-profiles:
+    cmd: python pipelines/ingestion.py sync-neighborhood-profiles
+    deps:
+    - path: data/neighborhood_profiles_raw.json
+      hash: md5
+      md5: 18ca85d99ec3eb88a5183c411bccc532
+      size: 354
+    - path: pipelines/ingestion.py
+      hash: md5
+      md5: 8428d178db25b41ea8ee94b657eec4c3
+      size: 2653
+    outs:
+    - path: data/neighborhood_profiles.json
+      hash: md5
+      md5: 51db0349a1ddc5aa131b3a1a7cb9fe23
+      size: 359
+  sync-market-comps:
+    cmd: python pipelines/ingestion.py sync-market-comps
+    deps:
+    - path: data/market_comps_raw.json
+      hash: md5
+      md5: 274070d964940444b83e18dbcc0eee96
+      size: 398
+    - path: pipelines/ingestion.py
+      hash: md5
+      md5: 8428d178db25b41ea8ee94b657eec4c3
+      size: 2653
+    outs:
+    - path: data/market_comps.json
+      hash: md5
+      md5: 2813cd1f8a1d34e09144cfc1ab8f08bd
+      size: 513
+  build-analytics-base:
+    cmd: python pipelines/preprocessing.py build-analytics-base
+    deps:
+    - path: data/listings.json
+      hash: md5
+      md5: 46bd3f2d79b13039872e64e593e9c3e3
+      size: 728
+    - path: data/market_comps.json
+      hash: md5
+      md5: 2813cd1f8a1d34e09144cfc1ab8f08bd
+      size: 513
+    - path: data/neighborhood_profiles.json
+      hash: md5
+      md5: 51db0349a1ddc5aa131b3a1a7cb9fe23
+      size: 359
+    - path: pipelines/preprocessing.py
+      hash: md5
+      md5: 2695580e187c81ab661f23733c3a304a
+      size: 5071
+    outs:
+    - path: data/analytics_base.json
+      hash: md5
+      md5: 27373c06b57c9b78a7644bb362000386
+      size: 1460
+  publish-project-dag:
+    cmd: dvc-dag --delete-text "pipelines/" --delete-text "stages/" 
+      --collapse-stage "stages/model/dvc.yaml:train-candidate-models=family" 
+      --colors-random-seed 12 --out docs/dvc_project_dag.png
+    deps:
+    - path: ../../../src/dvc_dag/cli.py
+      hash: md5
+      md5: 83b85e42328ffa5454f1028cd11a11d1
+      size: 4841
+    - path: ../../../src/dvc_dag/colors.py
+      hash: md5
+      md5: 215240c2e612ccfa992aa28ff70282d5
+      size: 1768
+    - path: ../../../src/dvc_dag/draw.py
+      hash: md5
+      md5: 66c3b8da0f51e67e54ea4543998a9826
+      size: 12036
+    - path: ../../../src/dvc_dag/logger.py
+      hash: md5
+      md5: af1ab33e89475eefcf493d931ee69d67
+      size: 615
+    - path: data/baseline_model.json
+      hash: md5
+      md5: 90c3c3e9345c644cc2023c24e0311d08
+      size: 66
+    - path: data/model_card.json
+      hash: md5
+      md5: 8cb46c6a0735c5b58a100ad40fd1c114
+      size: 101
+    outs:
+    - path: docs/dvc_project_dag.png
+      hash: md5
+      md5: c7965057000deaae2399d26e2671baec
+      size: 218641

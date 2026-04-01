@@ -11,6 +11,6 @@ Here is the syntax:
 > - ⚡️ (fixed) for any fixes.
 > - ❌ (removed) for now removed features.
 
-## 1.0.0 - 2026/03/30
+## 0.0.1 - 2026/03/30
 
 - ❇️ First release.

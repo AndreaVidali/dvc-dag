@@ -1,0 +1,20 @@
+{
+    "downtown": {
+        "recent_sale_price": 500000,
+        "recent_sale_sqft": 980,
+        "recent_days_on_market": 18,
+        "sale_price_per_sqft": 510.2
+    },
+    "hillside": {
+        "recent_sale_price": 710000,
+        "recent_sale_sqft": 1850,
+        "recent_days_on_market": 29,
+        "sale_price_per_sqft": 383.78
+    },
+    "lakeside": {
+        "recent_sale_price": 605000,
+        "recent_sale_sqft": 1420,
+        "recent_days_on_market": 24,
+        "sale_price_per_sqft": 426.06
+    }
+}

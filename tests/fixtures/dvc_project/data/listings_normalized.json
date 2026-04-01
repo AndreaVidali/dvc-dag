@@ -1,0 +1,30 @@
+{
+    "listing-101": {
+        "neighborhood": "downtown",
+        "sqft": 950,
+        "listing_age": 18,
+        "list_price_per_sqft": 510.53,
+        "bath_to_bed_ratio": 1.0
+    },
+    "listing-102": {
+        "neighborhood": "hillside",
+        "sqft": 1800,
+        "listing_age": 30,
+        "list_price_per_sqft": 408.33,
+        "bath_to_bed_ratio": 0.67
+    },
+    "listing-103": {
+        "neighborhood": "lakeside",
+        "sqft": 1400,
+        "listing_age": 12,
+        "list_price_per_sqft": 442.86,
+        "bath_to_bed_ratio": 0.67
+    },
+    "listing-104": {
+        "neighborhood": "downtown",
+        "sqft": 720,
+        "listing_age": 8,
+        "list_price_per_sqft": 548.61,
+        "bath_to_bed_ratio": 1.0
+    }
+}

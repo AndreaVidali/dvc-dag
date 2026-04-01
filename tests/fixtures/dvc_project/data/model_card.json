@@ -1,0 +1,5 @@
+{
+    "title": "house-price-demo",
+    "model_family": "baseline_regression",
+    "mae_kusd": 0.376
+}

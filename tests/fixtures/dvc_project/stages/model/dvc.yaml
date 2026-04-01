@@ -1,0 +1,66 @@
+stages:
+  search-hyperparameters:
+    cmd: python pipelines/training.py search-hyperparameters
+    wdir: "../.."
+    deps:
+      - pipelines/training.py
+      - data/feature_matrix.json
+    outs:
+      - data/hyperparameters.json:
+          cache: false
+    frozen: true
+
+  train-baseline-model:
+    cmd: python pipelines/training.py train-baseline-model
+    wdir: "../.."
+    deps:
+      - pipelines/training.py
+      - data/feature_matrix.json
+      - data/hyperparameters.json
+      - data/market_context.json
+    outs:
+      - data/baseline_model.json:
+          cache: false
+    frozen: true
+
+  train-candidate-models:
+    foreach:
+      - linear
+      - random_forest
+      - gradient_boosting
+    do:
+      cmd: python pipelines/training.py train-candidate-models --family ${item}
+      wdir: "../.."
+      deps:
+        - pipelines/training.py
+        - data/feature_matrix.json
+        - data/hyperparameters.json
+        - data/market_context.json
+      outs:
+        - data/candidate_model-${item}.json:
+            cache: false
+      frozen: true
+
+  evaluate-model:
+    cmd: python pipelines/evaluation.py evaluate-model
+    wdir: "../.."
+    deps:
+      - pipelines/evaluation.py
+      - data/baseline_model.json
+      - data/feature_matrix.json
+    outs:
+      - data/evaluation_report.json:
+          cache: false
+    frozen: true
+
+  build-model-card:
+    cmd: python pipelines/evaluation.py build-model-card
+    wdir: "../.."
+    deps:
+      - pipelines/evaluation.py
+      - data/baseline_model.json
+      - data/evaluation_report.json
+    outs:
+      - data/model_card.json:
+          cache: false
+    frozen: true

@@ -1,0 +1,54 @@
+schema: '2.0'
+stages:
+  build-location-features:
+    cmd: python pipelines/features.py build-location-features
+    deps:
+    - path: data/market_context.json
+      hash: md5
+      md5: 737c1e48e5c782ba2d6c884bf1031457
+      size: 1578
+    - path: pipelines/features.py
+      hash: md5
+      md5: c21c5c8044d5ff18133f8918cf09b9b7
+      size: 2645
+    outs:
+    - path: data/location_features.json
+      hash: md5
+      md5: 54900f11fbe9c14aa229840c0e46fcad
+      size: 377
+  build-property-features:
+    cmd: python pipelines/features.py build-property-features
+    deps:
+    - path: data/market_context.json
+      hash: md5
+      md5: 737c1e48e5c782ba2d6c884bf1031457
+      size: 1578
+    - path: pipelines/features.py
+      hash: md5
+      md5: c21c5c8044d5ff18133f8918cf09b9b7
+      size: 2645
+    outs:
+    - path: data/property_features.json
+      hash: md5
+      md5: e9a582e10e483cf94dec83882f9a07cd
+      size: 596
+  assemble-feature-matrix:
+    cmd: python pipelines/features.py assemble-feature-matrix
+    deps:
+    - path: data/location_features.json
+      hash: md5
+      md5: 54900f11fbe9c14aa229840c0e46fcad
+      size: 377
+    - path: data/property_features.json
+      hash: md5
+      md5: e9a582e10e483cf94dec83882f9a07cd
+      size: 596
+    - path: pipelines/features.py
+      hash: md5
+      md5: c21c5c8044d5ff18133f8918cf09b9b7
+      size: 2645
+    outs:
+    - path: data/feature_matrix.json
+      hash: md5
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863

@@ -1,11 +1,32 @@
 [project]
 name = "dvc-dag"
-version = "1.0.0"
+version = "0.0.1"
 description = "Generate a clear diagram of your DVC pipeline."
 readme = "README.md"
 authors = [{ name = "Andrea Vidali", email = "andreavidali.me@gmail.com" }]
+maintainers = [{ name = "Andrea Vidali", email = "andreavidali.me@gmail.com" }]
 license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
+keywords = ["dvc", "dag", "graphviz", "pipeline", "cli"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Scientific/Engineering :: Visualization",
+  "Topic :: Utilities",
+  "Typing :: Typed",
+]
 dependencies = [
   "dvc>=3",
   "pydot>=3.0.4",
@@ -18,7 +39,9 @@ dependencies = [
 dev = [
   "deptry>=0.23.0",
   "ipython>=8.31.0",
+  "mbake>=1.4.6",
   "pdbpp>=0.10.3",
+  "pre-commit>=4.2.0",
   "pytest>=8.3.4",
   "ruff>=0.9.4",
   "ty>=0.0.26",
@@ -26,11 +49,52 @@ dev = [
 ]
 
 [project.scripts]
-dvc-dag = "dvc_dag.cli:main"
+dvc-dag = "dvc_dag.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/AndreaVidali/dvc-dag"
+Repository = "https://github.com/AndreaVidali/dvc-dag"
+Issues = "https://github.com/AndreaVidali/dvc-dag/issues"
+Changelog = "https://github.com/AndreaVidali/dvc-dag/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/AndreaVidali/dvc-dag#readme"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build]
+ignore-vcs = true
+
+[tool.hatch.build.targets.sdist]
+only-include = [
+  "src/dvc_dag",
+  "README.md",
+  "LICENSE",
+  "CHANGELOG.md",
+  "docs/dvc_project_dag.png",
+  "pyproject.toml",
+]
+exclude = [
+  "*.gitignore",
+  "**/.gitignore",
+  ".gitignore",
+  ".github",
+  ".prettierignore",
+  ".python-version",
+  "Makefile",
+  "tests",
+  "uv.lock",
+  "/.gitignore",
+  "/.github",
+  "/.prettierignore",
+  "/.python-version",
+  "/Makefile",
+  "/tests",
+  "/uv.lock",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dvc_dag"]
 
 [tool.ruff]
 line-length = 99
@@ -40,7 +104,8 @@ output-format = "concise"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-  "G004", # logging-f-string
+  "G004",   # logging-f-string
+  "COM812", # missing-trailing-comma (conflicting lint rule)
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -56,7 +121,15 @@ known-first-party = ["dvc_dag"]
   "S101",    # use of `assert`
   "PLR2004", # magic value in comparison
   "INP001",  # implicit-namespace-package
-  "ANN",     # flake8-annotations
+]
+
+[tool.ty.terminal]
+output-format = "concise"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+  "ignore:'setParseAction' deprecated - use 'set_parse_action':DeprecationWarning",
 ]
 
 [tool.deptry]
@@ -64,5 +137,5 @@ known_first_party = ["dvc_dag"]
 
 [tool.deptry.per_rule_ignores]
 DEP002 = [
-  "dvc", # used for testing
+  "dvc", # used at runtime through the CLI's subprocess invocation
 ]

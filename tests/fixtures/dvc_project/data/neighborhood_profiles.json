@@ -1,0 +1,17 @@
+{
+    "downtown": {
+        "median_price_per_sqft": 510.0,
+        "school_score": 8,
+        "transit_score": 9
+    },
+    "hillside": {
+        "median_price_per_sqft": 390.0,
+        "school_score": 9,
+        "transit_score": 6
+    },
+    "lakeside": {
+        "median_price_per_sqft": 430.0,
+        "school_score": 7,
+        "transit_score": 7
+    }
+}
