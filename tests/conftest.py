@@ -23,6 +23,7 @@ PROJECT_FIXTURE_RELATIVE = PROJECT_FIXTURE.relative_to(REPO_ROOT)
 VENV_BIN = REPO_ROOT / ".venv" / "bin"
 CLI_BIN = VENV_BIN / "dvc-dag"
 PYTHON_BIN = VENV_BIN / "python"
+DVC_BIN = VENV_BIN / "dvc"
 
 
 def _find_executable(name: str) -> Path | None:
@@ -118,6 +119,23 @@ class DvcProject:
             check=False,
         )
 
+    def run_dvc(
+        self,
+        args: Sequence[str],
+        *,
+        cwd: Path | None = None,
+        env: Mapping[str, str] | None = None,
+    ) -> subprocess.CompletedProcess[str]:
+        """Run `dvc` inside the prepared project and return the completed process."""
+        return subprocess.run(  # noqa: S603
+            [str(DVC_BIN), *args],
+            capture_output=True,
+            cwd=cwd or self.root,
+            encoding="utf-8",
+            env=dict(env or self.env),
+            check=False,
+        )
+
 
 @pytest.fixture
 def dvc_project(tmp_path: Path) -> DvcProject:
@@ -169,4 +187,29 @@ def dvc_project(tmp_path: Path) -> DvcProject:
         base_path=current_path or "",
         dvc_bin_dir=dvc_bin.parent,
         graphviz_bin_dir=dot_bin.parent,
+    )
+
+
+@pytest.fixture
+def committed_dvc_project(tmp_path: Path) -> DvcProject:
+    """Return the committed fixture project with an isolated DVC config environment."""
+    if not DVC_BIN.exists():
+        pytest.skip("The fixture-status tests require .venv/bin/dvc.")
+
+    path_entries = [str(DVC_BIN.parent)]
+    current_path = os.environ.get("PATH")
+    if current_path:
+        path_entries.append(current_path)
+
+    env = os.environ.copy()
+    env["PATH"] = os.pathsep.join(path_entries)
+    env["DVC_GLOBAL_CONFIG_DIR"] = str(tmp_path / ".dvc-global")
+    env["DVC_SITE_CACHE_DIR"] = str(tmp_path / ".dvc-site-cache")
+
+    return DvcProject(
+        root=PROJECT_FIXTURE,
+        env=env,
+        base_path=current_path or "",
+        dvc_bin_dir=DVC_BIN.parent,
+        graphviz_bin_dir=DVC_BIN.parent,
     )
