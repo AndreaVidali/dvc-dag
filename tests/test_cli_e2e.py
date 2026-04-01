@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import importlib.metadata
+import re
+import shutil
 
 from typing import TYPE_CHECKING
 
@@ -24,11 +26,17 @@ if TYPE_CHECKING:
 
 
 runner = CliRunner()
+ANSI_ESCAPE_RE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 
 
 def _clean_name(name: EdgeEndpoint) -> str:
     """Return a graph node or edge endpoint name without Graphviz quotes."""
     return str(name).replace('"', "")
+
+
+def _strip_ansi(text: str) -> str:
+    """Return CLI output without ANSI escape sequences."""
+    return ANSI_ESCAPE_RE.sub("", text)
 
 
 def _node_names(graph: Dot) -> set[str]:
@@ -161,8 +169,11 @@ def test_cli_rejects_invalid_collapse_stage_values() -> None:
         ],
     )
 
+    output = _strip_ansi(result.output)
+
     assert result.exit_code == 2
-    assert "Invalid --collapse-stage value" in result.output
+    assert "collapse-stage" in output
+    assert "invalid-collapse-stage" in output
 
 
 def test_console_script_reports_not_in_dvc_repo(
@@ -190,23 +201,38 @@ def test_console_script_reports_missing_dvc(
         env=dvc_project.make_env(include_dvc=False),
     )
 
+    stderr = _strip_ansi(result.stderr)
+
     assert result.returncode == 1
-    assert "Error: DVC was not found." in result.stderr
-    assert "Traceback" not in result.stderr
+    assert "Error: DVC was not found." in stderr
+    assert "Traceback" not in stderr
 
 
 def test_console_script_reports_missing_tred(
     dvc_project: DvcProject,
+    tmp_path: Path,
 ) -> None:
     """Report a friendly error when Graphviz is unavailable."""
+    tool_bin_dir = tmp_path / "bin"
+    tool_bin_dir.mkdir()
+
+    dvc_link = tool_bin_dir / "dvc"
+    dvc_link.symlink_to(dvc_project.dvc_bin_dir / "dvc")
+
+    git_bin = shutil.which("git")
+    assert git_bin is not None
+    (tool_bin_dir / "git").symlink_to(git_bin)
+
     result = dvc_project.run_cli(
         [],
-        env=dvc_project.make_env(include_graphviz=False),
+        env=dvc_project.make_env(extra_env={"PATH": str(tool_bin_dir)}),
     )
 
+    stderr = _strip_ansi(result.stderr)
+
     assert result.returncode == 1
-    assert "Error: Graphviz `tred` was not found." in result.stderr
-    assert "Traceback" not in result.stderr
+    assert "Error: Graphviz `tred` was not found." in stderr
+    assert "Traceback" not in stderr
 
 
 def test_console_script_debug_keeps_traceback(
@@ -220,9 +246,11 @@ def test_console_script_debug_keeps_traceback(
         env=dvc_project.make_env(),
     )
 
+    stderr = _strip_ansi(result.stderr)
+
     assert result.returncode == 1
-    assert "Traceback" in result.stderr
-    assert "Not inside a DVC repository" in result.stderr
+    assert "Traceback" in stderr
+    assert "Not inside a DVC repository" in stderr
 
 
 def test_console_script_supports_version_flag(
@@ -240,7 +268,8 @@ def test_module_entrypoint_supports_help(
 ) -> None:
     """Expose the CLI via `python -m dvc_dag`."""
     result = dvc_project.run_module(["--help"])
+    stdout = _strip_ansi(result.stdout)
 
     assert result.returncode == 0
-    assert "Usage" in result.stdout
-    assert "--version" in result.stdout
+    assert "Usage" in stdout
+    assert "--out" in stdout
