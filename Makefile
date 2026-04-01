@@ -64,11 +64,11 @@ release-check: ## run checks, build artifacts, and smoke-test the built wheel
 	$(MAKE) smoke-wheel
 
 .PHONY: dag
-dag: ## repro the fixture DAG stage and copy ./dvc_project_dag.png
+dag: ## repro the fixture DAG stage
 	tmpdir=$$(mktemp -d); \
 	trap 'rm -rf "$$tmpdir"' EXIT; \
 	cd tests/fixtures/dvc_project && \
 	PATH="$$PWD/../../../.venv/bin:$$PATH" \
 	DVC_GLOBAL_CONFIG_DIR="$$tmpdir/.dvc-global" \
 	DVC_SITE_CACHE_DIR="$$tmpdir/.dvc-site-cache" \
-	../../../.venv/bin/dvc repro root-generate-dag --force
+	../../../.venv/bin/dvc repro publish-project-dag --force

@@ -1,32 +1,35 @@
 stages:
-  nested-do-unrelated-stuff:
-    cmd: python pipelines/nested/data.py do-unrelated-stuff
+  normalize-listings:
+    cmd: python pipelines/preprocessing.py normalize-listings
     wdir: "../.."
     deps:
-      - pipelines/nested/data.py
+      - pipelines/preprocessing.py
+      - data/listings.json
     outs:
-      - pipelines/nested/data/unrelated.json:
+      - data/listings_normalized.json:
           cache: false
     frozen: true
 
-  nested-import-data-blue:
-    cmd: python pipelines/nested/data.py import-data-blue
+  normalize-comps:
+    cmd: python pipelines/preprocessing.py normalize-comps
     wdir: "../.."
     deps:
-      - pipelines/nested/data/raw_blue.json
-      - pipelines/nested/data.py
+      - pipelines/preprocessing.py
+      - data/market_comps.json
     outs:
-      - pipelines/nested/data/blue.json:
+      - data/market_comps_normalized.json:
           cache: false
     frozen: true
 
-  nested-import-data-red:
-    cmd: python pipelines/nested/data.py import-data-red
+  join-market-context:
+    cmd: python pipelines/preprocessing.py join-market-context
     wdir: "../.."
     deps:
-      - pipelines/nested/data/raw_red.json
-      - pipelines/nested/data.py
+      - pipelines/preprocessing.py
+      - data/analytics_base.json
+      - data/listings_normalized.json
+      - data/market_comps_normalized.json
     outs:
-      - pipelines/nested/data/red.json:
+      - data/market_context.json:
           cache: false
     frozen: true

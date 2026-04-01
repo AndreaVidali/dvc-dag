@@ -1,187 +1,86 @@
 schema: '2.0'
 stages:
-  root-do-unrelated-stuff:
-    cmd: python pipelines/root/data.py do-unrelated-stuff
+  sync-listings:
+    cmd: python pipelines/ingestion.py sync-listings
     deps:
-    - path: pipelines/root/data.py
+    - path: data/listings_raw.json
       hash: md5
-      md5: 72992254c59916a23fb31e8b1c73acb7
-      size: 965
+      md5: d4e82b490fec4232ca768761c0ed8380
+      size: 729
+    - path: pipelines/ingestion.py
+      hash: md5
+      md5: 8428d178db25b41ea8ee94b657eec4c3
+      size: 2653
     outs:
-    - path: pipelines/root/data/unrelated.json
+    - path: data/listings.json
       hash: md5
-      md5: 848140eb737dc1749c603dbe99139d87
-      size: 28
-  root-import-data-blue:
-    cmd: python pipelines/root/data.py import-data-blue
+      md5: 46bd3f2d79b13039872e64e593e9c3e3
+      size: 728
+  sync-neighborhood-profiles:
+    cmd: python pipelines/ingestion.py sync-neighborhood-profiles
     deps:
-    - path: pipelines/root/data.py
+    - path: data/neighborhood_profiles_raw.json
       hash: md5
-      md5: 72992254c59916a23fb31e8b1c73acb7
-      size: 965
-    - path: pipelines/root/data/raw_blue.json
+      md5: 18ca85d99ec3eb88a5183c411bccc532
+      size: 354
+    - path: pipelines/ingestion.py
       hash: md5
-      md5: 05e4f87cfb80d1e17d8869e8d1486243
-      size: 64
+      md5: 8428d178db25b41ea8ee94b657eec4c3
+      size: 2653
     outs:
-    - path: pipelines/root/data/blue.json
+    - path: data/neighborhood_profiles.json
       hash: md5
-      md5: f94fb28e79bbfab95852c04a3e758f74
-      size: 52
-  root-import-data-red:
-    cmd: python pipelines/root/data.py import-data-red
+      md5: 51db0349a1ddc5aa131b3a1a7cb9fe23
+      size: 359
+  sync-market-comps:
+    cmd: python pipelines/ingestion.py sync-market-comps
     deps:
-    - path: pipelines/root/data.py
+    - path: data/market_comps_raw.json
       hash: md5
-      md5: 72992254c59916a23fb31e8b1c73acb7
-      size: 965
-    - path: pipelines/root/data/raw_red.json
+      md5: 274070d964940444b83e18dbcc0eee96
+      size: 398
+    - path: pipelines/ingestion.py
       hash: md5
-      md5: 22defad271033ee6f4df419eacd13653
-      size: 70
+      md5: 8428d178db25b41ea8ee94b657eec4c3
+      size: 2653
     outs:
-    - path: pipelines/root/data/red.json
+    - path: data/market_comps.json
       hash: md5
-      md5: 863ace0b15c2a5d9a38fb3d2d95039c3
-      size: 58
-  root-create-dataset:
-    cmd: python pipelines/root/features.py
+      md5: 2813cd1f8a1d34e09144cfc1ab8f08bd
+      size: 513
+  build-analytics-base:
+    cmd: python pipelines/preprocessing.py build-analytics-base
     deps:
-    - path: pipelines/root/features.py
+    - path: data/listings.json
       hash: md5
-      md5: e1dbbb82571a893ab70fc1d0be0e2eeb
-      size: 609
-    - path: pipelines/root/data/blue.json
+      md5: 46bd3f2d79b13039872e64e593e9c3e3
+      size: 728
+    - path: data/market_comps.json
       hash: md5
-      md5: f94fb28e79bbfab95852c04a3e758f74
-      size: 52
-    - path: pipelines/root/data/red.json
+      md5: 2813cd1f8a1d34e09144cfc1ab8f08bd
+      size: 513
+    - path: data/neighborhood_profiles.json
       hash: md5
-      md5: 863ace0b15c2a5d9a38fb3d2d95039c3
-      size: 58
+      md5: 51db0349a1ddc5aa131b3a1a7cb9fe23
+      size: 359
+    - path: pipelines/preprocessing.py
+      hash: md5
+      md5: 2695580e187c81ab661f23733c3a304a
+      size: 5071
     outs:
-    - path: pipelines/root/data/dataset.json
+    - path: data/analytics_base.json
       hash: md5
-      md5: cd21732bad56f7147443cd5ce0b07d53
-      size: 108
-  root-find-hyperparameters:
-    cmd: python pipelines/root/model.py find-hyperparameters
-    deps:
-    - path: pipelines/root/model.py
-      hash: md5
-      md5: 06bfa6dc47e612efad604b2bd51d67e2
-      size: 1496
-    outs:
-    - path: pipelines/root/data/hyperparameters.json
-      hash: md5
-      md5: b6cf61f651a5329112765b8e0aac7455
-      size: 34
-  root-train-model:
-    cmd: python pipelines/root/model.py train-model
-    deps:
-    - path: pipelines/root/data/blue.json
-      hash: md5
-      md5: f94fb28e79bbfab95852c04a3e758f74
-      size: 52
-    - path: pipelines/root/data/dataset.json
-      hash: md5
-      md5: cd21732bad56f7147443cd5ce0b07d53
-      size: 108
-    - path: pipelines/root/data/hyperparameters.json
-      hash: md5
-      md5: b6cf61f651a5329112765b8e0aac7455
-      size: 34
-    - path: pipelines/root/model.py
-      hash: md5
-      md5: 06bfa6dc47e612efad604b2bd51d67e2
-      size: 1496
-    outs:
-    - path: pipelines/root/data/model.json
-      hash: md5
-      md5: b6d57d36e990ea1272c4da1ac1968b06
-      size: 60
-  root-train-models@out_of_sample:
-    cmd: python pipelines/root/model.py train-model --split out_of_sample
-    deps:
-    - path: pipelines/root/data/blue.json
-      hash: md5
-      md5: f94fb28e79bbfab95852c04a3e758f74
-      size: 52
-    - path: pipelines/root/data/dataset.json
-      hash: md5
-      md5: cd21732bad56f7147443cd5ce0b07d53
-      size: 108
-    - path: pipelines/root/data/hyperparameters.json
-      hash: md5
-      md5: b6cf61f651a5329112765b8e0aac7455
-      size: 34
-    - path: pipelines/root/model.py
-      hash: md5
-      md5: 06bfa6dc47e612efad604b2bd51d67e2
-      size: 1496
-    outs:
-    - path: pipelines/root/data/model-out_of_sample.json
-      hash: md5
-      md5: b6d57d36e990ea1272c4da1ac1968b06
-      size: 60
-  root-train-models@out_of_time:
-    cmd: python pipelines/root/model.py train-model --split out_of_time
-    deps:
-    - path: pipelines/root/data/blue.json
-      hash: md5
-      md5: f94fb28e79bbfab95852c04a3e758f74
-      size: 52
-    - path: pipelines/root/data/dataset.json
-      hash: md5
-      md5: cd21732bad56f7147443cd5ce0b07d53
-      size: 108
-    - path: pipelines/root/data/hyperparameters.json
-      hash: md5
-      md5: b6cf61f651a5329112765b8e0aac7455
-      size: 34
-    - path: pipelines/root/model.py
-      hash: md5
-      md5: 06bfa6dc47e612efad604b2bd51d67e2
-      size: 1496
-    outs:
-    - path: pipelines/root/data/model-out_of_time.json
-      hash: md5
-      md5: b6d57d36e990ea1272c4da1ac1968b06
-      size: 60
-  root-train-models@full:
-    cmd: python pipelines/root/model.py train-model --split full
-    deps:
-    - path: pipelines/root/data/blue.json
-      hash: md5
-      md5: f94fb28e79bbfab95852c04a3e758f74
-      size: 52
-    - path: pipelines/root/data/dataset.json
-      hash: md5
-      md5: cd21732bad56f7147443cd5ce0b07d53
-      size: 108
-    - path: pipelines/root/data/hyperparameters.json
-      hash: md5
-      md5: b6cf61f651a5329112765b8e0aac7455
-      size: 34
-    - path: pipelines/root/model.py
-      hash: md5
-      md5: 06bfa6dc47e612efad604b2bd51d67e2
-      size: 1496
-    outs:
-    - path: pipelines/root/data/model-full.json
-      hash: md5
-      md5: b6d57d36e990ea1272c4da1ac1968b06
-      size: 60
-  root-generate-dag:
+      md5: 27373c06b57c9b78a7644bb362000386
+      size: 1460
+  publish-project-dag:
     cmd: dvc-dag --delete-text "pipelines/" --delete-text "stages/" 
-      --collapse-stage "root-train-models=split" --collapse-stage 
-      "stages/model/dvc.yaml:nested-train-models=split" --colors-random-seed 12 
-      --out docs/dvc_project_dag.png
+      --collapse-stage "stages/model/dvc.yaml:train-candidate-models=family" 
+      --colors-random-seed 12 --out docs/dvc_project_dag.png
     deps:
     - path: ../../../src/dvc_dag/cli.py
       hash: md5
-      md5: b5be03a58857c5500d54f079ce3adc7b
-      size: 4819
+      md5: 83b85e42328ffa5454f1028cd11a11d1
+      size: 4841
     - path: ../../../src/dvc_dag/colors.py
       hash: md5
       md5: 215240c2e612ccfa992aa28ff70282d5
@@ -194,8 +93,16 @@ stages:
       hash: md5
       md5: af1ab33e89475eefcf493d931ee69d67
       size: 615
+    - path: data/baseline_model.json
+      hash: md5
+      md5: 90c3c3e9345c644cc2023c24e0311d08
+      size: 66
+    - path: data/model_card.json
+      hash: md5
+      md5: 8cb46c6a0735c5b58a100ad40fd1c114
+      size: 101
     outs:
     - path: docs/dvc_project_dag.png
       hash: md5
-      md5: c75c27fb367bacfb4b14ca0fb93b9fe2
-      size: 200307
+      md5: c7965057000deaae2399d26e2671baec
+      size: 218641

@@ -1,12 +1,34 @@
 stages:
-  nested-create-dataset:
-    cmd: python pipelines/nested/features.py
+  build-location-features:
+    cmd: python pipelines/features.py build-location-features
     wdir: "../.."
     deps:
-      - pipelines/nested/features.py
-      - pipelines/nested/data/blue.json
-      - pipelines/nested/data/red.json
+      - pipelines/features.py
+      - data/market_context.json
     outs:
-      - pipelines/nested/data/dataset.json:
+      - data/location_features.json:
+          cache: false
+    frozen: true
+
+  build-property-features:
+    cmd: python pipelines/features.py build-property-features
+    wdir: "../.."
+    deps:
+      - pipelines/features.py
+      - data/market_context.json
+    outs:
+      - data/property_features.json:
+          cache: false
+    frozen: true
+
+  assemble-feature-matrix:
+    cmd: python pipelines/features.py assemble-feature-matrix
+    wdir: "../.."
+    deps:
+      - pipelines/features.py
+      - data/location_features.json
+      - data/property_features.json
+    outs:
+      - data/feature_matrix.json:
           cache: false
     frozen: true

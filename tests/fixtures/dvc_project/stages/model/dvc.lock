@@ -1,112 +1,156 @@
 schema: '2.0'
 stages:
-  nested-find-hyperparameters:
-    cmd: python pipelines/nested/model.py find-hyperparameters
+  search-hyperparameters:
+    cmd: python pipelines/training.py search-hyperparameters
     deps:
-    - path: pipelines/nested/model.py
+    - path: data/feature_matrix.json
       hash: md5
-      md5: 7f1d248a2fa9ae799dcb9e6abfd6bb0b
-      size: 1508
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863
+    - path: pipelines/training.py
+      hash: md5
+      md5: a799a21e121a8dd7a9c2908644d4813e
+      size: 3387
     outs:
-    - path: pipelines/nested/data/hyperparameters.json
+    - path: data/hyperparameters.json
       hash: md5
-      md5: b6cf61f651a5329112765b8e0aac7455
-      size: 34
-  nested-train-model:
-    cmd: python pipelines/nested/model.py train-model
+      md5: ee249322e2cce6bc573685083d45bb51
+      size: 77
+  train-baseline-model:
+    cmd: python pipelines/training.py train-baseline-model
     deps:
-    - path: pipelines/nested/data/blue.json
+    - path: data/feature_matrix.json
       hash: md5
-      md5: f94fb28e79bbfab95852c04a3e758f74
-      size: 52
-    - path: pipelines/nested/data/dataset.json
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863
+    - path: data/hyperparameters.json
       hash: md5
-      md5: cd21732bad56f7147443cd5ce0b07d53
-      size: 108
-    - path: pipelines/nested/data/hyperparameters.json
+      md5: ee249322e2cce6bc573685083d45bb51
+      size: 77
+    - path: data/market_context.json
       hash: md5
-      md5: b6cf61f651a5329112765b8e0aac7455
-      size: 34
-    - path: pipelines/nested/model.py
+      md5: 737c1e48e5c782ba2d6c884bf1031457
+      size: 1578
+    - path: pipelines/training.py
       hash: md5
-      md5: 7f1d248a2fa9ae799dcb9e6abfd6bb0b
-      size: 1508
+      md5: a799a21e121a8dd7a9c2908644d4813e
+      size: 3387
     outs:
-    - path: pipelines/nested/data/model.json
+    - path: data/baseline_model.json
       hash: md5
-      md5: b6d57d36e990ea1272c4da1ac1968b06
+      md5: 90c3c3e9345c644cc2023c24e0311d08
+      size: 66
+  evaluate-model:
+    cmd: python pipelines/evaluation.py evaluate-model
+    deps:
+    - path: data/baseline_model.json
+      hash: md5
+      md5: 90c3c3e9345c644cc2023c24e0311d08
+      size: 66
+    - path: data/feature_matrix.json
+      hash: md5
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863
+    - path: pipelines/evaluation.py
+      hash: md5
+      md5: e8a4b823a9623b38da7a47ddde0e7350
+      size: 1845
+    outs:
+    - path: data/evaluation_report.json
+      hash: md5
+      md5: 883c1518fe1619c3ee4520bbbfb5ab2e
+      size: 44
+  build-model-card:
+    cmd: python pipelines/evaluation.py build-model-card
+    deps:
+    - path: data/baseline_model.json
+      hash: md5
+      md5: 90c3c3e9345c644cc2023c24e0311d08
+      size: 66
+    - path: data/evaluation_report.json
+      hash: md5
+      md5: 883c1518fe1619c3ee4520bbbfb5ab2e
+      size: 44
+    - path: pipelines/evaluation.py
+      hash: md5
+      md5: e8a4b823a9623b38da7a47ddde0e7350
+      size: 1845
+    outs:
+    - path: data/model_card.json
+      hash: md5
+      md5: 8cb46c6a0735c5b58a100ad40fd1c114
+      size: 101
+  train-candidate-models@linear:
+    cmd: python pipelines/training.py train-candidate-models --family linear
+    deps:
+    - path: data/feature_matrix.json
+      hash: md5
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863
+    - path: data/hyperparameters.json
+      hash: md5
+      md5: ee249322e2cce6bc573685083d45bb51
+      size: 77
+    - path: data/market_context.json
+      hash: md5
+      md5: 737c1e48e5c782ba2d6c884bf1031457
+      size: 1578
+    - path: pipelines/training.py
+      hash: md5
+      md5: a799a21e121a8dd7a9c2908644d4813e
+      size: 3387
+    outs:
+    - path: data/candidate_model-linear.json
+      hash: md5
+      md5: ab5edbea57c47ffabe8da77ddaa15182
+      size: 53
+  train-candidate-models@random_forest:
+    cmd: python pipelines/training.py train-candidate-models --family 
+      random_forest
+    deps:
+    - path: data/feature_matrix.json
+      hash: md5
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863
+    - path: data/hyperparameters.json
+      hash: md5
+      md5: ee249322e2cce6bc573685083d45bb51
+      size: 77
+    - path: data/market_context.json
+      hash: md5
+      md5: 737c1e48e5c782ba2d6c884bf1031457
+      size: 1578
+    - path: pipelines/training.py
+      hash: md5
+      md5: a799a21e121a8dd7a9c2908644d4813e
+      size: 3387
+    outs:
+    - path: data/candidate_model-random_forest.json
+      hash: md5
+      md5: fba1fb1b89bcb99f8f1e5589ee881e6d
       size: 60
-  nested-train-models@out_of_sample:
-    cmd: python pipelines/nested/model.py train-model --split 
-      out_of_sample
+  train-candidate-models@gradient_boosting:
+    cmd: python pipelines/training.py train-candidate-models --family 
+      gradient_boosting
     deps:
-    - path: pipelines/nested/data/blue.json
+    - path: data/feature_matrix.json
       hash: md5
-      md5: f94fb28e79bbfab95852c04a3e758f74
-      size: 52
-    - path: pipelines/nested/data/dataset.json
+      md5: 8ee9ac00126af9d029f085796991eb87
+      size: 863
+    - path: data/hyperparameters.json
       hash: md5
-      md5: cd21732bad56f7147443cd5ce0b07d53
-      size: 108
-    - path: pipelines/nested/data/hyperparameters.json
+      md5: ee249322e2cce6bc573685083d45bb51
+      size: 77
+    - path: data/market_context.json
       hash: md5
-      md5: b6cf61f651a5329112765b8e0aac7455
-      size: 34
-    - path: pipelines/nested/model.py
+      md5: 737c1e48e5c782ba2d6c884bf1031457
+      size: 1578
+    - path: pipelines/training.py
       hash: md5
-      md5: 7f1d248a2fa9ae799dcb9e6abfd6bb0b
-      size: 1508
+      md5: a799a21e121a8dd7a9c2908644d4813e
+      size: 3387
     outs:
-    - path: pipelines/nested/data/model-out_of_sample.json
+    - path: data/candidate_model-gradient_boosting.json
       hash: md5
-      md5: b6d57d36e990ea1272c4da1ac1968b06
-      size: 60
-  nested-train-models@out_of_time:
-    cmd: python pipelines/nested/model.py train-model --split 
-      out_of_time
-    deps:
-    - path: pipelines/nested/data/blue.json
-      hash: md5
-      md5: f94fb28e79bbfab95852c04a3e758f74
-      size: 52
-    - path: pipelines/nested/data/dataset.json
-      hash: md5
-      md5: cd21732bad56f7147443cd5ce0b07d53
-      size: 108
-    - path: pipelines/nested/data/hyperparameters.json
-      hash: md5
-      md5: b6cf61f651a5329112765b8e0aac7455
-      size: 34
-    - path: pipelines/nested/model.py
-      hash: md5
-      md5: 7f1d248a2fa9ae799dcb9e6abfd6bb0b
-      size: 1508
-    outs:
-    - path: pipelines/nested/data/model-out_of_time.json
-      hash: md5
-      md5: b6d57d36e990ea1272c4da1ac1968b06
-      size: 60
-  nested-train-models@full:
-    cmd: python pipelines/nested/model.py train-model --split full
-    deps:
-    - path: pipelines/nested/data/blue.json
-      hash: md5
-      md5: f94fb28e79bbfab95852c04a3e758f74
-      size: 52
-    - path: pipelines/nested/data/dataset.json
-      hash: md5
-      md5: cd21732bad56f7147443cd5ce0b07d53
-      size: 108
-    - path: pipelines/nested/data/hyperparameters.json
-      hash: md5
-      md5: b6cf61f651a5329112765b8e0aac7455
-      size: 34
-    - path: pipelines/nested/model.py
-      hash: md5
-      md5: 7f1d248a2fa9ae799dcb9e6abfd6bb0b
-      size: 1508
-    outs:
-    - path: pipelines/nested/data/model-full.json
-      hash: md5
-      md5: b6d57d36e990ea1272c4da1ac1968b06
-      size: 60
+      md5: cc2ad9306399b9611e01fb48ee372573
+      size: 64

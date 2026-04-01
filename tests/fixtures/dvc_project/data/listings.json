@@ -1,0 +1,34 @@
+{
+    "listing-101": {
+        "neighborhood": "downtown",
+        "sqft": 950,
+        "beds": 2,
+        "baths": 2,
+        "year_built": 2008,
+        "list_price": 485000
+    },
+    "listing-102": {
+        "neighborhood": "hillside",
+        "sqft": 1800,
+        "beds": 3,
+        "baths": 2,
+        "year_built": 1996,
+        "list_price": 735000
+    },
+    "listing-103": {
+        "neighborhood": "lakeside",
+        "sqft": 1400,
+        "beds": 3,
+        "baths": 2,
+        "year_built": 2014,
+        "list_price": 620000
+    },
+    "listing-104": {
+        "neighborhood": "downtown",
+        "sqft": 720,
+        "beds": 1,
+        "baths": 1,
+        "year_built": 2018,
+        "list_price": 395000
+    }
+}

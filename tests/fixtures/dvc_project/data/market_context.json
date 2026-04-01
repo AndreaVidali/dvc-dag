@@ -1,0 +1,54 @@
+{
+    "listing-101": {
+        "sqft": 950,
+        "listing_age": 18,
+        "bath_to_bed_ratio": 1.0,
+        "list_price_per_sqft": 510.53,
+        "school_score": 8,
+        "transit_score": 9,
+        "median_price_per_sqft": 510.0,
+        "price_gap_to_neighborhood": 0.53,
+        "price_gap_to_comps": 0.33,
+        "recent_days_on_market": 18,
+        "pricing_pressure": 2.7
+    },
+    "listing-102": {
+        "sqft": 1800,
+        "listing_age": 30,
+        "bath_to_bed_ratio": 0.67,
+        "list_price_per_sqft": 408.33,
+        "school_score": 9,
+        "transit_score": 6,
+        "median_price_per_sqft": 390.0,
+        "price_gap_to_neighborhood": 18.33,
+        "price_gap_to_comps": 24.55,
+        "recent_days_on_market": 29,
+        "pricing_pressure": 1.6
+    },
+    "listing-103": {
+        "sqft": 1400,
+        "listing_age": 12,
+        "bath_to_bed_ratio": 0.67,
+        "list_price_per_sqft": 442.86,
+        "school_score": 7,
+        "transit_score": 7,
+        "median_price_per_sqft": 430.0,
+        "price_gap_to_neighborhood": 12.86,
+        "price_gap_to_comps": 16.8,
+        "recent_days_on_market": 24,
+        "pricing_pressure": 2.1
+    },
+    "listing-104": {
+        "sqft": 720,
+        "listing_age": 8,
+        "bath_to_bed_ratio": 1.0,
+        "list_price_per_sqft": 548.61,
+        "school_score": 8,
+        "transit_score": 9,
+        "median_price_per_sqft": 510.0,
+        "price_gap_to_neighborhood": 38.61,
+        "price_gap_to_comps": 38.41,
+        "recent_days_on_market": 18,
+        "pricing_pressure": 2.7
+    }
+}

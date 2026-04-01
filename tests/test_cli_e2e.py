@@ -53,10 +53,13 @@ def test_generate_dag_reads_the_fixture_project(
 
     dag = generate_dag()
 
-    assert '"root-train-models@full";' in dag
-    assert '"stages/model/dvc.yaml:nested-train-models@out_of_sample";' in dag
-    assert '"pipelines/root/data/raw_blue.json.dvc" -> "root-import-data-blue";' in dag
-    assert '"root-import-data-blue" -> "root-train-model";' in dag
+    assert '"stages/model/dvc.yaml:train-candidate-models@linear";' in dag
+    assert '"data/listings_raw.json.dvc" -> "sync-listings";' in dag
+    assert '"build-analytics-base" -> "stages/data/dvc.yaml:join-market-context";' in dag
+    assert (
+        '"stages/features/dvc.yaml:assemble-feature-matrix" '
+        '-> "stages/model/dvc.yaml:train-baseline-model";'
+    ) in dag
 
 
 def test_draw_dag_image_collapses_and_trims_the_fixture_graph(
@@ -70,8 +73,7 @@ def test_draw_dag_image_collapses_and_trims_the_fixture_graph(
         remove_transitivities(generate_dag()),
         path_text_to_delete=["pipelines/", "stages/"],
         stage_collapses=[
-            "root-train-models=split",
-            "stages/model/dvc.yaml:nested-train-models=split",
+            "stages/model/dvc.yaml:train-candidate-models=family",
         ],
         colors_random_seed=12,
     )
@@ -80,17 +82,15 @@ def test_draw_dag_image_collapses_and_trims_the_fixture_graph(
     edge_pairs = _edge_pairs(graph)
     graph_text = graph.to_string()
 
-    assert "root-train-models@{split}" in node_names
-    assert "root-train-models@full" not in node_names
-    assert "stages/model:\nnested-train-models@{split}" in node_names
-    assert "stages/model:\nnested-train-models@out_of_time" not in node_names
-    assert ("root-import-data-blue", "root-train-model") not in edge_pairs
+    assert "stages/model:\ntrain-candidate-models@{family}" in node_names
+    assert "stages/model:\ntrain-candidate-models@linear" not in node_names
+    assert ("sync-market-comps", "stages/data:\njoin-market-context") not in edge_pairs
     assert (
-        "stages/data:\nnested-import-data-blue",
-        "stages/model:\nnested-train-model",
+        "stages/features:\nassemble-feature-matrix",
+        "stages/model:\ntrain-baseline-model",
     ) not in edge_pairs
-    assert "model:<BR/>nested-train-models@{split}" in graph_text
-    assert "nested/data:<BR/>raw_blue.json.dvc" in graph_text
+    assert "features:<BR/>assemble-feature-matrix" in graph_text
+    assert "data:<BR/>listings_raw.json.dvc" in graph_text
 
 
 def test_cli_writes_a_png_from_the_fixture_project(
@@ -110,9 +110,7 @@ def test_cli_writes_a_png_from_the_fixture_project(
             "--delete-text",
             "stages/",
             "--collapse-stage",
-            "root-train-models=split",
-            "--collapse-stage",
-            "stages/model/dvc.yaml:nested-train-models=split",
+            "stages/model/dvc.yaml:train-candidate-models=family",
             "--colors-random-seed",
             "12",
             "--out",
@@ -139,9 +137,7 @@ def test_console_script_writes_a_png_from_the_fixture_project(
             "--delete-text",
             "stages/",
             "--collapse-stage",
-            "root-train-models=split",
-            "--collapse-stage",
-            "stages/model/dvc.yaml:nested-train-models=split",
+            "stages/model/dvc.yaml:train-candidate-models=family",
             "--colors-random-seed",
             "12",
             "--out",

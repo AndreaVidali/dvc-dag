@@ -1,0 +1,18 @@
+{
+    "listing-101": {
+        "neighborhood_quality": 8.35,
+        "market_heat": 44.0
+    },
+    "listing-102": {
+        "neighborhood_quality": 7.95,
+        "market_heat": 22.0
+    },
+    "listing-103": {
+        "neighborhood_quality": 7.0,
+        "market_heat": 32.0
+    },
+    "listing-104": {
+        "neighborhood_quality": 8.35,
+        "market_heat": 44.0
+    }
+}

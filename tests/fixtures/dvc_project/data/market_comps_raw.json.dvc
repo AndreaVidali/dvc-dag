@@ -1,0 +1,5 @@
+outs:
+- md5: 274070d964940444b83e18dbcc0eee96
+  size: 398
+  hash: md5
+  path: market_comps_raw.json

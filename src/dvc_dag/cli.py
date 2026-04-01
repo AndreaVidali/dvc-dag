@@ -112,8 +112,8 @@ def main(
 
     Example:
         dvc-dag --delete-text "pipelines/" --delete-text "stages/" \\
-            --collapse-stage "train-models=split" \\
-            --collapse-stage "stages/model/dvc.yaml:train-models=split"
+            --collapse-stage "train-candidate-models=family" \\
+            --collapse-stage "stages/model/dvc.yaml:train-candidate-models=family"
     """
     configure_logging(level=logging.DEBUG if debug else logging.INFO)
 

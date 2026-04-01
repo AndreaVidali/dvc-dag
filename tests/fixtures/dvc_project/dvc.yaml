@@ -1,88 +1,51 @@
 stages:
-  root-do-unrelated-stuff:
-    cmd: python pipelines/root/data.py do-unrelated-stuff
+  sync-listings:
+    cmd: python pipelines/ingestion.py sync-listings
     deps:
-      - pipelines/root/data.py
+      - pipelines/ingestion.py
+      - data/listings_raw.json
     outs:
-      - pipelines/root/data/unrelated.json:
+      - data/listings.json:
           cache: false
     frozen: true
 
-  root-import-data-blue:
-    cmd: python pipelines/root/data.py import-data-blue
+  sync-neighborhood-profiles:
+    cmd: python pipelines/ingestion.py sync-neighborhood-profiles
     deps:
-      - pipelines/root/data/raw_blue.json
-      - pipelines/root/data.py
+      - pipelines/ingestion.py
+      - data/neighborhood_profiles_raw.json
     outs:
-      - pipelines/root/data/blue.json:
+      - data/neighborhood_profiles.json:
           cache: false
     frozen: true
 
-  root-import-data-red:
-    cmd: python pipelines/root/data.py import-data-red
+  sync-market-comps:
+    cmd: python pipelines/ingestion.py sync-market-comps
     deps:
-      - pipelines/root/data/raw_red.json
-      - pipelines/root/data.py
+      - pipelines/ingestion.py
+      - data/market_comps_raw.json
     outs:
-      - pipelines/root/data/red.json:
+      - data/market_comps.json:
           cache: false
     frozen: true
 
-  root-create-dataset:
-    cmd: python pipelines/root/features.py
+  build-analytics-base:
+    cmd: python pipelines/preprocessing.py build-analytics-base
     deps:
-      - pipelines/root/features.py
-      - pipelines/root/data/blue.json
-      - pipelines/root/data/red.json
+      - pipelines/preprocessing.py
+      - data/listings.json
+      - data/neighborhood_profiles.json
+      - data/market_comps.json
     outs:
-      - pipelines/root/data/dataset.json:
+      - data/analytics_base.json:
           cache: false
     frozen: true
 
-  root-find-hyperparameters:
-    cmd: python pipelines/root/model.py find-hyperparameters
-    deps:
-      - pipelines/root/model.py
-    outs:
-      - pipelines/root/data/hyperparameters.json:
-          cache: false
-    frozen: true
-
-  root-train-model:
-    cmd: python pipelines/root/model.py train-model
-    deps:
-      - pipelines/root/model.py
-      - pipelines/root/data/dataset.json
-      - pipelines/root/data/hyperparameters.json
-      - pipelines/root/data/blue.json
-    outs:
-      - pipelines/root/data/model.json:
-          cache: false
-    frozen: true
-
-  root-train-models:
-    foreach:
-      - out_of_sample
-      - out_of_time
-      - full
-    do:
-      cmd: python pipelines/root/model.py train-model --split ${item}
-      deps:
-        - pipelines/root/model.py
-        - pipelines/root/data/dataset.json
-        - pipelines/root/data/hyperparameters.json
-        - pipelines/root/data/blue.json
-      outs:
-        - pipelines/root/data/model-${item}.json:
-            cache: false
-      frozen: true
-
-  root-generate-dag:
+  publish-project-dag:
     cmd: dvc-dag
       --delete-text "pipelines/"
       --delete-text "stages/"
-      --collapse-stage "root-train-models=split"
-      --collapse-stage "stages/model/dvc.yaml:nested-train-models=split"
+      --collapse-stage "stages/model/dvc.yaml:train-candidate-models=family"
       --colors-random-seed 12
       --out docs/dvc_project_dag.png
     deps:
@@ -90,6 +53,8 @@ stages:
       - ../../../src/dvc_dag/colors.py
       - ../../../src/dvc_dag/draw.py
       - ../../../src/dvc_dag/logger.py
+      - data/baseline_model.json
+      - data/model_card.json
     outs:
       - docs/dvc_project_dag.png:
           cache: false

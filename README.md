@@ -68,7 +68,7 @@ dvc-dag --version
 Collapse parameterized stages:
 
 ```bash
-dvc-dag --collapse-stage "train-models=split"
+dvc-dag --collapse-stage "train-candidate-models=family"
 ```
 
 The `--collapse-stage` format is:

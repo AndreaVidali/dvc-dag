@@ -1,41 +1,66 @@
 stages:
-  nested-find-hyperparameters:
-    cmd: python pipelines/nested/model.py find-hyperparameters
+  search-hyperparameters:
+    cmd: python pipelines/training.py search-hyperparameters
     wdir: "../.."
     deps:
-      - pipelines/nested/model.py
+      - pipelines/training.py
+      - data/feature_matrix.json
     outs:
-      - pipelines/nested/data/hyperparameters.json:
+      - data/hyperparameters.json:
           cache: false
     frozen: true
 
-  nested-train-model:
-    cmd: python pipelines/nested/model.py train-model
+  train-baseline-model:
+    cmd: python pipelines/training.py train-baseline-model
     wdir: "../.."
     deps:
-      - pipelines/nested/model.py
-      - pipelines/nested/data/dataset.json
-      - pipelines/nested/data/hyperparameters.json
-      - pipelines/nested/data/blue.json
+      - pipelines/training.py
+      - data/feature_matrix.json
+      - data/hyperparameters.json
+      - data/market_context.json
     outs:
-      - pipelines/nested/data/model.json:
+      - data/baseline_model.json:
           cache: false
     frozen: true
 
-  nested-train-models:
+  train-candidate-models:
     foreach:
-      - out_of_sample
-      - out_of_time
-      - full
+      - linear
+      - random_forest
+      - gradient_boosting
     do:
-      cmd: python pipelines/nested/model.py train-model --split ${item}
+      cmd: python pipelines/training.py train-candidate-models --family ${item}
       wdir: "../.."
       deps:
-        - pipelines/nested/model.py
-        - pipelines/nested/data/dataset.json
-        - pipelines/nested/data/hyperparameters.json
-        - pipelines/nested/data/blue.json
+        - pipelines/training.py
+        - data/feature_matrix.json
+        - data/hyperparameters.json
+        - data/market_context.json
       outs:
-        - pipelines/nested/data/model-${item}.json:
+        - data/candidate_model-${item}.json:
             cache: false
       frozen: true
+
+  evaluate-model:
+    cmd: python pipelines/evaluation.py evaluate-model
+    wdir: "../.."
+    deps:
+      - pipelines/evaluation.py
+      - data/baseline_model.json
+      - data/feature_matrix.json
+    outs:
+      - data/evaluation_report.json:
+          cache: false
+    frozen: true
+
+  build-model-card:
+    cmd: python pipelines/evaluation.py build-model-card
+    wdir: "../.."
+    deps:
+      - pipelines/evaluation.py
+      - data/baseline_model.json
+      - data/evaluation_report.json
+    outs:
+      - data/model_card.json:
+          cache: false
+    frozen: true

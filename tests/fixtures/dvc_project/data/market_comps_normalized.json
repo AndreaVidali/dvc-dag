@@ -1,0 +1,17 @@
+{
+    "downtown": {
+        "sale_price_per_sqft": 510.2,
+        "recent_days_on_market": 18,
+        "pricing_pressure": 2.7
+    },
+    "hillside": {
+        "sale_price_per_sqft": 383.78,
+        "recent_days_on_market": 29,
+        "pricing_pressure": 1.6
+    },
+    "lakeside": {
+        "sale_price_per_sqft": 426.06,
+        "recent_days_on_market": 24,
+        "pricing_pressure": 2.1
+    }
+}

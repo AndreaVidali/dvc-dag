@@ -54,22 +54,22 @@ def test_colors_are_deterministic_for_a_seed() -> None:
 def test_process_node_name_supports_windows_style_paths() -> None:
     """Normalize Windows-like paths before formatting graph node names."""
     stage_collapses = parse_stage_collapses(
-        [r"stages\model\dvc.yaml:nested-train-models=split"],
+        [r"stages\model\dvc.yaml:train-candidate-models=family"],
     )
 
     assert (
         process_node_name(
-            r"stages\model\dvc.yaml:nested-train-models@full",
+            r"stages\model\dvc.yaml:train-candidate-models@linear",
             stage_collapses=stage_collapses,
         )
-        == '"stages/model:\nnested-train-models@{split}"'
+        == '"stages/model:\ntrain-candidate-models@{family}"'
     )
     assert (
         process_node_name(
-            r"pipelines\root\data\raw_blue.json.dvc",
+            r"data\listings_raw.json.dvc",
             stage_collapses=stage_collapses,
         )
-        == '"pipelines/root/data:\nraw_blue.json.dvc"'
+        == '"data:\nlistings_raw.json.dvc"'
     )
 
 
@@ -90,32 +90,32 @@ def test_format_nodes_formats_files_and_collapsed_stage_labels() -> None:
     graph = graph_from_dot(
         """
         digraph {
-            "stages/model/dvc.yaml:nested-train-models@full"
-                -> "pipelines/root/data/raw_blue.json.dvc";
+            "stages/model/dvc.yaml:train-candidate-models@linear"
+                -> "data/listings_raw.json.dvc";
         }
         """,
     )
     stage_collapses = parse_stage_collapses(
-        ["stages/model/dvc.yaml:nested-train-models=split"],
+        ["stages/model/dvc.yaml:train-candidate-models=family"],
     )
 
     formatted_nodes = format_nodes(
         graph,
-        path_text_to_delete=["pipelines/"],
+        path_text_to_delete=[],
         stage_collapses=stage_collapses,
         colors_random_seed=11,
     )
 
-    collapsed_stage = '"stages/model:\nnested-train-models@{split}"'
-    data_file = '"pipelines/root/data:\nraw_blue.json.dvc"'
+    collapsed_stage = '"stages/model:\ntrain-candidate-models@{family}"'
+    data_file = '"data:\nlistings_raw.json.dvc"'
     collapsed_stage_label = formatted_nodes[collapsed_stage]["label"]
     data_file_label = formatted_nodes[data_file]["label"]
 
     assert formatted_nodes[collapsed_stage]["style"] == "filled"
     assert isinstance(collapsed_stage_label, str)
-    assert "<BR/>nested-train-models@{split}</FONT>>" in collapsed_stage_label
+    assert "<BR/>train-candidate-models@{family}</FONT>>" in collapsed_stage_label
     assert formatted_nodes[data_file]["shape"] == "box"
-    assert data_file_label == "<<FONT COLOR='black'>root/data:<BR/>raw_blue.json.dvc</FONT>>"
+    assert data_file_label == "<<FONT COLOR='black'>data:<BR/>listings_raw.json.dvc</FONT>>"
 
 
 def test_format_edges_relabels_collapsed_stage_endpoints() -> None:
@@ -123,15 +123,14 @@ def test_format_edges_relabels_collapsed_stage_endpoints() -> None:
     graph = graph_from_dot(
         """
         digraph {
-            "root-train-models@full"
-                -> "stages/model/dvc.yaml:nested-train-models@full";
+            "build-analytics-base"
+                -> "stages/model/dvc.yaml:train-candidate-models@linear";
         }
         """,
     )
     stage_collapses = parse_stage_collapses(
         [
-            "root-train-models=split",
-            "stages/model/dvc.yaml:nested-train-models=split",
+            "stages/model/dvc.yaml:train-candidate-models=family",
         ],
     )
 
@@ -139,8 +138,8 @@ def test_format_edges_relabels_collapsed_stage_endpoints() -> None:
 
     assert formatted_edges == {
         encode_edge_name(
-            '"root-train-models@{split}"',
-            '"stages/model:\nnested-train-models@{split}"',
+            '"build-analytics-base"',
+            '"stages/model:\ntrain-candidate-models@{family}"',
         ): {"penwidth": "2"},
     }
 
@@ -163,4 +162,4 @@ def test_parse_stage_collapses_rejects_invalid_values(stage_collapse: str) -> No
 def test_parse_stage_collapses_rejects_conflicting_values() -> None:
     """Reject conflicting parameter names for the same stage."""
     with pytest.raises(ValueError, match=r"Conflicting --collapse-stage values"):
-        parse_stage_collapses(["train-models=split", "train-models=variant"])
+        parse_stage_collapses(["train-candidate-models=family", "train-candidate-models=horizon"])
