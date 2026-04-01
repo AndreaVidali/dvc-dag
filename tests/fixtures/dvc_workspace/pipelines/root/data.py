@@ -12,12 +12,12 @@ app = typer.Typer()
 
 def import_data(color: str) -> None:
     """Import data."""
-    with Path(f"pipelines/root/files/raw_{color}.json").open() as file:
+    with Path(f"pipelines/root/data/raw_{color}.json").open() as file:
         data = json.load(file)
 
     imported_data = {key.replace("raw_", ""): value for key, value in data.items()}
 
-    with Path(f"pipelines/root/files/{color}.json").open("w") as file:
+    with Path(f"pipelines/root/data/{color}.json").open("w") as file:
         json.dump(imported_data, file, indent=4)
 
 
@@ -36,7 +36,7 @@ def import_data_red() -> None:
 @app.command()
 def do_unrelated_stuff() -> None:
     """Do unrelated stuff."""
-    with Path("pipelines/root/files/unrelated.json").open("w") as file:
+    with Path("pipelines/root/data/unrelated.json").open("w") as file:
         json.dump({"unrelated": "stuff"}, file, indent=4)
 
 

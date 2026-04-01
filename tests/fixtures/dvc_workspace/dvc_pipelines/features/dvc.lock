@@ -7,16 +7,16 @@ stages:
       hash: md5
       md5: 416888d188480242321b87525907d7cb
       size: 617
-    - path: pipelines/nested/files/blue.json
+    - path: pipelines/nested/data/blue.json
       hash: md5
       md5: f94fb28e79bbfab95852c04a3e758f74
       size: 52
-    - path: pipelines/nested/files/red.json
+    - path: pipelines/nested/data/red.json
       hash: md5
       md5: 863ace0b15c2a5d9a38fb3d2d95039c3
       size: 58
     outs:
-    - path: pipelines/nested/files/dataset.json
+    - path: pipelines/nested/data/dataset.json
       hash: md5
       md5: cd21732bad56f7147443cd5ce0b07d53
       size: 108

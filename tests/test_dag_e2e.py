@@ -55,7 +55,7 @@ def test_generate_dag_reads_the_fixture_workspace(
 
     assert '"root-train-models@full";' in dag
     assert '"dvc_pipelines/model/dvc.yaml:nested-train-models@out_of_sample";' in dag
-    assert '"pipelines/root/files/raw_blue.json.dvc" -> "root-import-data-blue";' in dag
+    assert '"pipelines/root/data/raw_blue.json.dvc" -> "root-import-data-blue";' in dag
     assert '"root-import-data-blue" -> "root-train-model";' in dag
 
 
@@ -90,7 +90,7 @@ def test_draw_dag_image_collapses_and_trims_the_fixture_graph(
         "dvc_pipelines/model:\nnested-train-model",
     ) not in edge_pairs
     assert "features:<BR/>nested-create-dataset" in graph_text
-    assert "nested/files:<BR/>raw_blue.json.dvc" in graph_text
+    assert "nested/data:<BR/>raw_blue.json.dvc" in graph_text
 
 
 def test_cli_writes_a_png_from_the_fixture_workspace(

@@ -5,7 +5,7 @@ stages:
     deps:
       - pipelines/nested/model.py
     outs:
-      - pipelines/nested/files/hyperparameters.json:
+      - pipelines/nested/data/hyperparameters.json:
           cache: false
     frozen: true
 
@@ -14,11 +14,11 @@ stages:
     wdir: "../.."
     deps:
       - pipelines/nested/model.py
-      - pipelines/nested/files/dataset.json
-      - pipelines/nested/files/hyperparameters.json
-      - pipelines/nested/files/blue.json
+      - pipelines/nested/data/dataset.json
+      - pipelines/nested/data/hyperparameters.json
+      - pipelines/nested/data/blue.json
     outs:
-      - pipelines/nested/files/model.json:
+      - pipelines/nested/data/model.json:
           cache: false
     frozen: true
 
@@ -32,10 +32,10 @@ stages:
       wdir: "../.."
       deps:
         - pipelines/nested/model.py
-        - pipelines/nested/files/dataset.json
-        - pipelines/nested/files/hyperparameters.json
-        - pipelines/nested/files/blue.json
+        - pipelines/nested/data/dataset.json
+        - pipelines/nested/data/hyperparameters.json
+        - pipelines/nested/data/blue.json
       outs:
-        - pipelines/nested/files/model-${item}.json:
+        - pipelines/nested/data/model-${item}.json:
             cache: false
       frozen: true

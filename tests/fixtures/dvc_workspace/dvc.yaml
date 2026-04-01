@@ -4,27 +4,27 @@ stages:
     deps:
       - pipelines/root/data.py
     outs:
-      - pipelines/root/files/unrelated.json:
+      - pipelines/root/data/unrelated.json:
           cache: false
     frozen: true
 
   root-import-data-blue:
     cmd: python pipelines/root/data.py import-data-blue
     deps:
-      - pipelines/root/files/raw_blue.json
+      - pipelines/root/data/raw_blue.json
       - pipelines/root/data.py
     outs:
-      - pipelines/root/files/blue.json:
+      - pipelines/root/data/blue.json:
           cache: false
     frozen: true
 
   root-import-data-red:
     cmd: python pipelines/root/data.py import-data-red
     deps:
-      - pipelines/root/files/raw_red.json
+      - pipelines/root/data/raw_red.json
       - pipelines/root/data.py
     outs:
-      - pipelines/root/files/red.json:
+      - pipelines/root/data/red.json:
           cache: false
     frozen: true
 
@@ -32,10 +32,10 @@ stages:
     cmd: python pipelines/root/features.py
     deps:
       - pipelines/root/features.py
-      - pipelines/root/files/blue.json
-      - pipelines/root/files/red.json
+      - pipelines/root/data/blue.json
+      - pipelines/root/data/red.json
     outs:
-      - pipelines/root/files/dataset.json:
+      - pipelines/root/data/dataset.json:
           cache: false
     frozen: true
 
@@ -44,7 +44,7 @@ stages:
     deps:
       - pipelines/root/model.py
     outs:
-      - pipelines/root/files/hyperparameters.json:
+      - pipelines/root/data/hyperparameters.json:
           cache: false
     frozen: true
 
@@ -52,11 +52,11 @@ stages:
     cmd: python pipelines/root/model.py train-model
     deps:
       - pipelines/root/model.py
-      - pipelines/root/files/dataset.json
-      - pipelines/root/files/hyperparameters.json
-      - pipelines/root/files/blue.json
+      - pipelines/root/data/dataset.json
+      - pipelines/root/data/hyperparameters.json
+      - pipelines/root/data/blue.json
     outs:
-      - pipelines/root/files/model.json:
+      - pipelines/root/data/model.json:
           cache: false
     frozen: true
 
@@ -69,11 +69,11 @@ stages:
       cmd: python pipelines/root/model.py train-model --split ${item}
       deps:
         - pipelines/root/model.py
-        - pipelines/root/files/dataset.json
-        - pipelines/root/files/hyperparameters.json
-        - pipelines/root/files/blue.json
+        - pipelines/root/data/dataset.json
+        - pipelines/root/data/hyperparameters.json
+        - pipelines/root/data/blue.json
       outs:
-        - pipelines/root/files/model-${item}.json:
+        - pipelines/root/data/model-${item}.json:
             cache: false
       frozen: true
 

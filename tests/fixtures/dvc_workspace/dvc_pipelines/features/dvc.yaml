@@ -4,9 +4,9 @@ stages:
     wdir: "../.."
     deps:
       - pipelines/nested/features.py
-      - pipelines/nested/files/blue.json
-      - pipelines/nested/files/red.json
+      - pipelines/nested/data/blue.json
+      - pipelines/nested/data/red.json
     outs:
-      - pipelines/nested/files/dataset.json:
+      - pipelines/nested/data/dataset.json:
           cache: false
     frozen: true

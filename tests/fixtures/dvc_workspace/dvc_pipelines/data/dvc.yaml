@@ -5,7 +5,7 @@ stages:
     deps:
       - pipelines/nested/data.py
     outs:
-      - pipelines/nested/files/unrelated.json:
+      - pipelines/nested/data/unrelated.json:
           cache: false
     frozen: true
 
@@ -13,10 +13,10 @@ stages:
     cmd: python pipelines/nested/data.py import-data-blue
     wdir: "../.."
     deps:
-      - pipelines/nested/files/raw_blue.json
+      - pipelines/nested/data/raw_blue.json
       - pipelines/nested/data.py
     outs:
-      - pipelines/nested/files/blue.json:
+      - pipelines/nested/data/blue.json:
           cache: false
     frozen: true
 
@@ -24,9 +24,9 @@ stages:
     cmd: python pipelines/nested/data.py import-data-red
     wdir: "../.."
     deps:
-      - pipelines/nested/files/raw_red.json
+      - pipelines/nested/data/raw_red.json
       - pipelines/nested/data.py
     outs:
-      - pipelines/nested/files/red.json:
+      - pipelines/nested/data/red.json:
           cache: false
     frozen: true

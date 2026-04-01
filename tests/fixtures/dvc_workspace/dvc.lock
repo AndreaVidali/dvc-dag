@@ -8,7 +8,7 @@ stages:
       md5: 72992254c59916a23fb31e8b1c73acb7
       size: 965
     outs:
-    - path: pipelines/root/files/unrelated.json
+    - path: pipelines/root/data/unrelated.json
       hash: md5
       md5: 848140eb737dc1749c603dbe99139d87
       size: 28
@@ -19,12 +19,12 @@ stages:
       hash: md5
       md5: 72992254c59916a23fb31e8b1c73acb7
       size: 965
-    - path: pipelines/root/files/raw_blue.json
+    - path: pipelines/root/data/raw_blue.json
       hash: md5
       md5: 05e4f87cfb80d1e17d8869e8d1486243
       size: 64
     outs:
-    - path: pipelines/root/files/blue.json
+    - path: pipelines/root/data/blue.json
       hash: md5
       md5: f94fb28e79bbfab95852c04a3e758f74
       size: 52
@@ -35,12 +35,12 @@ stages:
       hash: md5
       md5: 72992254c59916a23fb31e8b1c73acb7
       size: 965
-    - path: pipelines/root/files/raw_red.json
+    - path: pipelines/root/data/raw_red.json
       hash: md5
       md5: 22defad271033ee6f4df419eacd13653
       size: 70
     outs:
-    - path: pipelines/root/files/red.json
+    - path: pipelines/root/data/red.json
       hash: md5
       md5: 863ace0b15c2a5d9a38fb3d2d95039c3
       size: 58
@@ -51,16 +51,16 @@ stages:
       hash: md5
       md5: e1dbbb82571a893ab70fc1d0be0e2eeb
       size: 609
-    - path: pipelines/root/files/blue.json
+    - path: pipelines/root/data/blue.json
       hash: md5
       md5: f94fb28e79bbfab95852c04a3e758f74
       size: 52
-    - path: pipelines/root/files/red.json
+    - path: pipelines/root/data/red.json
       hash: md5
       md5: 863ace0b15c2a5d9a38fb3d2d95039c3
       size: 58
     outs:
-    - path: pipelines/root/files/dataset.json
+    - path: pipelines/root/data/dataset.json
       hash: md5
       md5: cd21732bad56f7147443cd5ce0b07d53
       size: 108
@@ -72,22 +72,22 @@ stages:
       md5: 06bfa6dc47e612efad604b2bd51d67e2
       size: 1496
     outs:
-    - path: pipelines/root/files/hyperparameters.json
+    - path: pipelines/root/data/hyperparameters.json
       hash: md5
       md5: b6cf61f651a5329112765b8e0aac7455
       size: 34
   root-train-model:
     cmd: python pipelines/root/model.py train-model
     deps:
-    - path: pipelines/root/files/blue.json
+    - path: pipelines/root/data/blue.json
       hash: md5
       md5: f94fb28e79bbfab95852c04a3e758f74
       size: 52
-    - path: pipelines/root/files/dataset.json
+    - path: pipelines/root/data/dataset.json
       hash: md5
       md5: cd21732bad56f7147443cd5ce0b07d53
       size: 108
-    - path: pipelines/root/files/hyperparameters.json
+    - path: pipelines/root/data/hyperparameters.json
       hash: md5
       md5: b6cf61f651a5329112765b8e0aac7455
       size: 34
@@ -96,7 +96,7 @@ stages:
       md5: 06bfa6dc47e612efad604b2bd51d67e2
       size: 1496
     outs:
-    - path: pipelines/root/files/model.json
+    - path: pipelines/root/data/model.json
       hash: md5
       md5: b6d57d36e990ea1272c4da1ac1968b06
       size: 60
@@ -104,15 +104,15 @@ stages:
     cmd: python pipelines/root/model.py train-model --split 
       out_of_sample
     deps:
-    - path: pipelines/root/files/blue.json
+    - path: pipelines/root/data/blue.json
       hash: md5
       md5: f94fb28e79bbfab95852c04a3e758f74
       size: 52
-    - path: pipelines/root/files/dataset.json
+    - path: pipelines/root/data/dataset.json
       hash: md5
       md5: cd21732bad56f7147443cd5ce0b07d53
       size: 108
-    - path: pipelines/root/files/hyperparameters.json
+    - path: pipelines/root/data/hyperparameters.json
       hash: md5
       md5: b6cf61f651a5329112765b8e0aac7455
       size: 34
@@ -121,7 +121,7 @@ stages:
       md5: 06bfa6dc47e612efad604b2bd51d67e2
       size: 1496
     outs:
-    - path: pipelines/root/files/model-out_of_sample.json
+    - path: pipelines/root/data/model-out_of_sample.json
       hash: md5
       md5: b6d57d36e990ea1272c4da1ac1968b06
       size: 60
@@ -129,15 +129,15 @@ stages:
     cmd: python pipelines/root/model.py train-model --split 
       out_of_time
     deps:
-    - path: pipelines/root/files/blue.json
+    - path: pipelines/root/data/blue.json
       hash: md5
       md5: f94fb28e79bbfab95852c04a3e758f74
       size: 52
-    - path: pipelines/root/files/dataset.json
+    - path: pipelines/root/data/dataset.json
       hash: md5
       md5: cd21732bad56f7147443cd5ce0b07d53
       size: 108
-    - path: pipelines/root/files/hyperparameters.json
+    - path: pipelines/root/data/hyperparameters.json
       hash: md5
       md5: b6cf61f651a5329112765b8e0aac7455
       size: 34
@@ -146,22 +146,22 @@ stages:
       md5: 06bfa6dc47e612efad604b2bd51d67e2
       size: 1496
     outs:
-    - path: pipelines/root/files/model-out_of_time.json
+    - path: pipelines/root/data/model-out_of_time.json
       hash: md5
       md5: b6d57d36e990ea1272c4da1ac1968b06
       size: 60
   root-train-models@full:
     cmd: python pipelines/root/model.py train-model --split full
     deps:
-    - path: pipelines/root/files/blue.json
+    - path: pipelines/root/data/blue.json
       hash: md5
       md5: f94fb28e79bbfab95852c04a3e758f74
       size: 52
-    - path: pipelines/root/files/dataset.json
+    - path: pipelines/root/data/dataset.json
       hash: md5
       md5: cd21732bad56f7147443cd5ce0b07d53
       size: 108
-    - path: pipelines/root/files/hyperparameters.json
+    - path: pipelines/root/data/hyperparameters.json
       hash: md5
       md5: b6cf61f651a5329112765b8e0aac7455
       size: 34
@@ -170,7 +170,7 @@ stages:
       md5: 06bfa6dc47e612efad604b2bd51d67e2
       size: 1496
     outs:
-    - path: pipelines/root/files/model-full.json
+    - path: pipelines/root/data/model-full.json
       hash: md5
       md5: b6d57d36e990ea1272c4da1ac1968b06
       size: 60

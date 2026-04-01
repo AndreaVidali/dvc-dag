@@ -66,10 +66,10 @@ def test_process_node_name_supports_windows_style_paths() -> None:
     )
     assert (
         process_node_name(
-            r"pipelines\root\files\raw_blue.json.dvc",
+            r"pipelines\root\data\raw_blue.json.dvc",
             stage_collapses=stage_collapses,
         )
-        == '"pipelines/root/files:\nraw_blue.json.dvc"'
+        == '"pipelines/root/data:\nraw_blue.json.dvc"'
     )
 
 
@@ -91,7 +91,7 @@ def test_format_nodes_formats_files_and_collapsed_stage_labels() -> None:
         """
         digraph {
             "dvc_pipelines/model/dvc.yaml:nested-train-models@full"
-                -> "pipelines/root/files/raw_blue.json.dvc";
+                -> "pipelines/root/data/raw_blue.json.dvc";
         }
         """,
     )
@@ -107,7 +107,7 @@ def test_format_nodes_formats_files_and_collapsed_stage_labels() -> None:
     )
 
     collapsed_stage = '"dvc_pipelines/model:\nnested-train-models@{split}"'
-    data_file = '"pipelines/root/files:\nraw_blue.json.dvc"'
+    data_file = '"pipelines/root/data:\nraw_blue.json.dvc"'
     collapsed_stage_label = formatted_nodes[collapsed_stage]["label"]
     data_file_label = formatted_nodes[data_file]["label"]
 
@@ -115,7 +115,7 @@ def test_format_nodes_formats_files_and_collapsed_stage_labels() -> None:
     assert isinstance(collapsed_stage_label, str)
     assert "<BR/>nested-train-models@{split}</FONT>>" in collapsed_stage_label
     assert formatted_nodes[data_file]["shape"] == "box"
-    assert data_file_label == "<<FONT COLOR='black'>root/files:<BR/>raw_blue.json.dvc</FONT>>"
+    assert data_file_label == "<<FONT COLOR='black'>root/data:<BR/>raw_blue.json.dvc</FONT>>"
 
 
 def test_format_edges_relabels_collapsed_stage_endpoints() -> None:
