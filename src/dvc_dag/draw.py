@@ -27,6 +27,7 @@ EDGE_NAME_SEPARATOR = "***"
 DEFAULT_NODE_OPTIONS: dict[str, str | int] = {
     "fontsize": 20,
     "penwidth": "2",
+    "fontname": "Cambria",
 }
 DEFAULT_EDGE_OPTIONS: dict[str, str] = {
     "penwidth": "2",
