@@ -11,6 +11,10 @@ Here is the syntax:
 > - ⚡️ (fixed) for any fixes.
 > - ❌ (removed) for now removed features.
 
+## 0.0.2 - 2026/04/01
+
+- ⚙️ Improved README.
+
 ## 0.0.1 - 2026/03/30
 
 - ❇️ First release.

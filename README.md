@@ -2,6 +2,8 @@
 
 Generate a readable PNG diagram of your DVC pipeline.
 
+Example:
+
 ![Example DVC DAG](docs/dvc_project_dag.png)
 
 ## Overview
