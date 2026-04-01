@@ -5,8 +5,8 @@ stages:
     deps:
     - path: tests/dvc_pipelines/nested/model.py
       hash: md5
-      md5: 6c6d64474ebae01e1e486cb4a065efd4
-      size: 1504
+      md5: 7f1d248a2fa9ae799dcb9e6abfd6bb0b
+      size: 1508
     outs:
     - path: tests/dvc_pipelines/nested/files/hyperparameters.json
       hash: md5
@@ -29,8 +29,8 @@ stages:
       size: 34
     - path: tests/dvc_pipelines/nested/model.py
       hash: md5
-      md5: 6c6d64474ebae01e1e486cb4a065efd4
-      size: 1504
+      md5: 7f1d248a2fa9ae799dcb9e6abfd6bb0b
+      size: 1508
     outs:
     - path: tests/dvc_pipelines/nested/files/model.json
       hash: md5
@@ -54,8 +54,8 @@ stages:
       size: 34
     - path: tests/dvc_pipelines/nested/model.py
       hash: md5
-      md5: 6c6d64474ebae01e1e486cb4a065efd4
-      size: 1504
+      md5: 7f1d248a2fa9ae799dcb9e6abfd6bb0b
+      size: 1508
     outs:
     - path: tests/dvc_pipelines/nested/files/model-out_of_sample.json
       hash: md5
@@ -79,8 +79,8 @@ stages:
       size: 34
     - path: tests/dvc_pipelines/nested/model.py
       hash: md5
-      md5: 6c6d64474ebae01e1e486cb4a065efd4
-      size: 1504
+      md5: 7f1d248a2fa9ae799dcb9e6abfd6bb0b
+      size: 1508
     outs:
     - path: tests/dvc_pipelines/nested/files/model-out_of_time.json
       hash: md5
@@ -103,8 +103,8 @@ stages:
       size: 34
     - path: tests/dvc_pipelines/nested/model.py
       hash: md5
-      md5: 6c6d64474ebae01e1e486cb4a065efd4
-      size: 1504
+      md5: 7f1d248a2fa9ae799dcb9e6abfd6bb0b
+      size: 1508
     outs:
     - path: tests/dvc_pipelines/nested/files/model-full.json
       hash: md5

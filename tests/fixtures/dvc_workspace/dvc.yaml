@@ -29,7 +29,7 @@ stages:
     frozen: true
 
   root-create-dataset:
-    cmd: python tests/dvc_pipelines/root/features.py create-dataset
+    cmd: python tests/dvc_pipelines/root/features.py
     deps:
       - tests/dvc_pipelines/root/features.py
       - tests/dvc_pipelines/root/files/blue.json
@@ -85,6 +85,12 @@ stages:
       --collapse-stage "dvc_pipelines/model/dvc.yaml:nested-train-models=split"
       --colors-random-seed 12
       --out docs/dvc_dag.png
+    deps:
+      - ../../../src/dvc_dag/cli.py
+      - ../../../src/dvc_dag/colors.py
+      - ../../../src/dvc_dag/draw.py
+      - ../../../src/dvc_dag/logger.py
     outs:
       - docs/dvc_dag.png:
           cache: false
+    frozen: false

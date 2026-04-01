@@ -1,7 +1,7 @@
 schema: '2.0'
 stages:
   nested-create-dataset:
-    cmd: python tests/dvc_pipelines/nested/features.py create-dataset
+    cmd: python tests/dvc_pipelines/nested/features.py
     deps:
     - path: tests/dvc_pipelines/nested/features.py
       hash: md5

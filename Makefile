@@ -1,6 +1,5 @@
 .DEFAULT_GOAL := help
 SHELL = bash
-DAG_OUTPUT ?= $(CURDIR)/dvc_dag.png
 BUILD_OUTPUT_DIR ?= dist
 SMOKE_VENV ?= /tmp/dvc-dag-smoke-venv
 
@@ -71,10 +70,4 @@ dag: ## render the fixture DAG into ./dvc_dag.png
 	cd tests/fixtures/dvc_workspace && \
 	DVC_GLOBAL_CONFIG_DIR="$$tmpdir/.dvc-global" \
 	DVC_SITE_CACHE_DIR="$$tmpdir/.dvc-site-cache" \
-	uv run dvc-dag \
-	--delete-text "dvc_pipelines/" \
-	--delete-text "tests/" \
-	--collapse-stage "root-train-models=split" \
-	--collapse-stage "dvc_pipelines/model/dvc.yaml:nested-train-models=split" \
-	--colors-random-seed 12 \
-	--out "$(DAG_OUTPUT)"
+	../../../.venv/bin/dvc repro root-generate-dag --force

@@ -1,6 +1,6 @@
 stages:
   nested-create-dataset:
-    cmd: python tests/dvc_pipelines/nested/features.py create-dataset
+    cmd: python tests/dvc_pipelines/nested/features.py
     wdir: "../.."
     deps:
       - tests/dvc_pipelines/nested/features.py

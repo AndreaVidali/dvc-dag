@@ -45,7 +45,7 @@ stages:
       md5: 863ace0b15c2a5d9a38fb3d2d95039c3
       size: 58
   root-create-dataset:
-    cmd: python tests/dvc_pipelines/root/features.py create-dataset
+    cmd: python tests/dvc_pipelines/root/features.py
     deps:
     - path: tests/dvc_pipelines/root/features.py
       hash: md5
@@ -179,8 +179,25 @@ stages:
       --collapse-stage "root-train-models=split" --collapse-stage 
       "dvc_pipelines/model/dvc.yaml:nested-train-models=split" 
       --colors-random-seed 12 --out docs/dvc_dag.png
+    deps:
+    - path: ../../../src/dvc_dag/cli.py
+      hash: md5
+      md5: 601eff1d2abc99c16f5a771f45c507f0
+      size: 4829
+    - path: ../../../src/dvc_dag/colors.py
+      hash: md5
+      md5: 215240c2e612ccfa992aa28ff70282d5
+      size: 1768
+    - path: ../../../src/dvc_dag/draw.py
+      hash: md5
+      md5: 66c3b8da0f51e67e54ea4543998a9826
+      size: 12036
+    - path: ../../../src/dvc_dag/logger.py
+      hash: md5
+      md5: af1ab33e89475eefcf493d931ee69d67
+      size: 615
     outs:
     - path: docs/dvc_dag.png
       hash: md5
-      md5: ad62596208b2c518f9784738f8acbe9d
-      size: 178058
+      md5: 6fa58058b512337f71f60f0ec312a97c
+      size: 201027
