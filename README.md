@@ -2,7 +2,7 @@
 
 Generate a readable PNG diagram of your DVC pipeline.
 
-![Example DVC DAG](tests/fixtures/dvc_project/docs/dvc_project_dag.png)
+![Example DVC DAG](docs/dvc_project_dag.png)
 
 ## Overview
 
@@ -101,3 +101,6 @@ Or render the fixture DAG straight from the repository root:
 ```bash
 make dag
 ```
+
+`make dag` is the supported way to refresh the demo DAG. It regenerates the
+fixture image and then syncs `docs/dvc_project_dag.png` for the README.

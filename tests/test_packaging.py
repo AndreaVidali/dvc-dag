@@ -71,6 +71,7 @@ def test_sdist_contains_curated_release_files(
     assert f"{root}/README.md" in names
     assert f"{root}/LICENSE" in names
     assert f"{root}/CHANGELOG.md" in names
+    assert f"{root}/docs/dvc_project_dag.png" in names
     assert not any(name.startswith(f"{root}/tests/") for name in names)
     assert not any(name.startswith(f"{root}/.github/") for name in names)
     assert f"{root}/Makefile" not in names

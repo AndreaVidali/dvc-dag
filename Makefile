@@ -63,8 +63,12 @@ release-check: ## run checks, build artifacts, and smoke-test the built wheel
 	$(MAKE) build
 	$(MAKE) smoke-wheel
 
+.PHONY: sync-demo-dag
+sync-demo-dag: ## copy the fixture DAG image into docs/
+	.venv/bin/python scripts/sync_demo_dag.py
+
 .PHONY: dag
-dag: ## repro the fixture DAG stage
+dag: ## repro the fixture DAG stage and sync docs/dvc_project_dag.png
 	tmpdir=$$(mktemp -d); \
 	trap 'rm -rf "$$tmpdir"' EXIT; \
 	cd tests/fixtures/dvc_project && \
@@ -72,3 +76,4 @@ dag: ## repro the fixture DAG stage
 	DVC_GLOBAL_CONFIG_DIR="$$tmpdir/.dvc-global" \
 	DVC_SITE_CACHE_DIR="$$tmpdir/.dvc-site-cache" \
 	../../../.venv/bin/dvc repro publish-project-dag --force
+	$(MAKE) sync-demo-dag
