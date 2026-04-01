@@ -54,15 +54,15 @@ def test_colors_are_deterministic_for_a_seed() -> None:
 def test_process_node_name_supports_windows_style_paths() -> None:
     """Normalize Windows-like paths before formatting graph node names."""
     stage_collapses = parse_stage_collapses(
-        [r"dvc_pipelines\model\dvc.yaml:nested-train-models=split"],
+        [r"stages\model\dvc.yaml:nested-train-models=split"],
     )
 
     assert (
         process_node_name(
-            r"dvc_pipelines\model\dvc.yaml:nested-train-models@full",
+            r"stages\model\dvc.yaml:nested-train-models@full",
             stage_collapses=stage_collapses,
         )
-        == '"dvc_pipelines/model:\nnested-train-models@{split}"'
+        == '"stages/model:\nnested-train-models@{split}"'
     )
     assert (
         process_node_name(
@@ -90,13 +90,13 @@ def test_format_nodes_formats_files_and_collapsed_stage_labels() -> None:
     graph = graph_from_dot(
         """
         digraph {
-            "dvc_pipelines/model/dvc.yaml:nested-train-models@full"
+            "stages/model/dvc.yaml:nested-train-models@full"
                 -> "pipelines/root/data/raw_blue.json.dvc";
         }
         """,
     )
     stage_collapses = parse_stage_collapses(
-        ["dvc_pipelines/model/dvc.yaml:nested-train-models=split"],
+        ["stages/model/dvc.yaml:nested-train-models=split"],
     )
 
     formatted_nodes = format_nodes(
@@ -106,7 +106,7 @@ def test_format_nodes_formats_files_and_collapsed_stage_labels() -> None:
         colors_random_seed=11,
     )
 
-    collapsed_stage = '"dvc_pipelines/model:\nnested-train-models@{split}"'
+    collapsed_stage = '"stages/model:\nnested-train-models@{split}"'
     data_file = '"pipelines/root/data:\nraw_blue.json.dvc"'
     collapsed_stage_label = formatted_nodes[collapsed_stage]["label"]
     data_file_label = formatted_nodes[data_file]["label"]
@@ -124,14 +124,14 @@ def test_format_edges_relabels_collapsed_stage_endpoints() -> None:
         """
         digraph {
             "root-train-models@full"
-                -> "dvc_pipelines/model/dvc.yaml:nested-train-models@full";
+                -> "stages/model/dvc.yaml:nested-train-models@full";
         }
         """,
     )
     stage_collapses = parse_stage_collapses(
         [
             "root-train-models=split",
-            "dvc_pipelines/model/dvc.yaml:nested-train-models=split",
+            "stages/model/dvc.yaml:nested-train-models=split",
         ],
     )
 
@@ -140,7 +140,7 @@ def test_format_edges_relabels_collapsed_stage_endpoints() -> None:
     assert formatted_edges == {
         encode_edge_name(
             '"root-train-models@{split}"',
-            '"dvc_pipelines/model:\nnested-train-models@{split}"',
+            '"stages/model:\nnested-train-models@{split}"',
         ): {"penwidth": "2"},
     }
 

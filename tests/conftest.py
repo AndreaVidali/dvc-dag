@@ -1,4 +1,4 @@
-"""Pytest fixtures for isolated DVC workspace tests."""
+"""Pytest fixtures for isolated DVC project tests."""
 
 from __future__ import annotations
 
@@ -18,8 +18,8 @@ if TYPE_CHECKING:
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-WORKSPACE_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "dvc_workspace"
-WORKSPACE_FIXTURE_RELATIVE = WORKSPACE_FIXTURE.relative_to(REPO_ROOT)
+PROJECT_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "dvc_project"
+PROJECT_FIXTURE_RELATIVE = PROJECT_FIXTURE.relative_to(REPO_ROOT)
 VENV_BIN = REPO_ROOT / ".venv" / "bin"
 CLI_BIN = VENV_BIN / "dvc-dag"
 PYTHON_BIN = VENV_BIN / "python"
@@ -40,8 +40,8 @@ def _find_executable(name: str) -> Path | None:
 
 
 @dataclass(frozen=True)
-class DvcWorkspace:
-    """Temporary DVC workspace prepared for end-to-end testing."""
+class DvcProject:
+    """Temporary DVC project prepared for end-to-end testing."""
 
     root: Path
     env: dict[str, str]
@@ -50,7 +50,7 @@ class DvcWorkspace:
     graphviz_bin_dir: Path
 
     def activate(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Apply the workspace environment to the active pytest context."""
+        """Apply the project environment to the active pytest context."""
         monkeypatch.chdir(self.root)
         for key in ("PATH", "DVC_GLOBAL_CONFIG_DIR", "DVC_SITE_CACHE_DIR"):
             monkeypatch.setenv(key, self.env[key])
@@ -120,8 +120,8 @@ class DvcWorkspace:
 
 
 @pytest.fixture
-def dvc_workspace(tmp_path: Path) -> DvcWorkspace:
-    """Create an isolated Git repo containing the committed DVC fixture workspace."""
+def dvc_project(tmp_path: Path) -> DvcProject:
+    """Create an isolated Git repo containing the committed DVC fixture project."""
     dvc_bin = VENV_BIN / "dvc"
     if not dvc_bin.exists():
         pytest.skip("The end-to-end tests require .venv/bin/dvc.")
@@ -136,11 +136,11 @@ def dvc_workspace(tmp_path: Path) -> DvcWorkspace:
         pytest.skip("The end-to-end tests require Graphviz 'dot' and 'tred'.")
 
     repo_root = tmp_path / "repo"
-    workspace = repo_root / WORKSPACE_FIXTURE_RELATIVE
-    workspace.parent.mkdir(parents=True, exist_ok=True)
+    project = repo_root / PROJECT_FIXTURE_RELATIVE
+    project.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(
-        WORKSPACE_FIXTURE,
-        workspace,
+        PROJECT_FIXTURE,
+        project,
         ignore=shutil.ignore_patterns(".DS_Store", "__pycache__", "*.pyc"),
     )
 
@@ -163,8 +163,8 @@ def dvc_workspace(tmp_path: Path) -> DvcWorkspace:
         check=True,
     )
 
-    return DvcWorkspace(
-        root=workspace,
+    return DvcProject(
+        root=project,
         env=env,
         base_path=current_path or "",
         dvc_bin_dir=dvc_bin.parent,

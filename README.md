@@ -2,7 +2,7 @@
 
 Generate a readable PNG diagram of your DVC pipeline.
 
-![Example DVC DAG](https://raw.githubusercontent.com/AndreaVidali/dvc-dag/tests/fixtures/dvc_workspace/docs/dvc_dag.png)
+![Example DVC DAG](https://raw.githubusercontent.com/AndreaVidali/dvc-dag/tests/fixtures/dvc_project/docs/dvc_project_dag.png)
 
 ## Overview
 
@@ -50,7 +50,7 @@ pipx install dvc-dag
 Generate a PNG in the current DVC repository:
 
 ```bash
-dvc-dag --out docs/dvc_dag.png
+dvc-dag
 ```
 
 Show all options:
@@ -86,14 +86,14 @@ path/to/dvc.yaml:stage_name=parameter_name
 
 ## Development
 
-The repository includes committed DVC fixture workspaces under `tests/fixtures/`
+The repository includes a committed DVC fixture project under `tests/fixtures/`
 for end-to-end testing.
 
-You can try the CLI manually against the committed fixture workspace:
+You can try the CLI manually against the committed fixture project:
 
 ```bash
-cd tests/fixtures/dvc_workspace
-uv run dvc-dag --out /tmp/dvc_dag.png
+cd tests/fixtures/dvc_project
+uv run dvc-dag --out /tmp/dvc_project_dag.png
 ```
 
 Or render the fixture DAG straight from the repository root:

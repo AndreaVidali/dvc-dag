@@ -51,7 +51,7 @@ def test_wheel_contains_runtime_files_only(
     assert "dvc_dag/__main__.py" in names
     assert "dvc_dag/py.typed" in names
     assert f"{dist_info}/licenses/LICENSE" in names
-    assert "tests/test_dag_e2e.py" not in names
+    assert not any(name.startswith("tests/") for name in names)
     assert "dvc-dag = dvc_dag.cli:app" in entry_points
 
 

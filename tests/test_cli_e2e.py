@@ -1,4 +1,4 @@
-"""End-to-end tests for DVC DAG generation."""
+"""End-to-end CLI tests for DVC DAG generation."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from pydot.classes import EdgeEndpoint
     from pydot.core import Dot
 
-    from tests.conftest import DvcWorkspace
+    from tests.conftest import DvcProject
 
 
 runner = CliRunner()
@@ -44,34 +44,34 @@ def _edge_pairs(graph: Dot) -> set[tuple[str, str]]:
     }
 
 
-def test_generate_dag_reads_the_fixture_workspace(
-    dvc_workspace: DvcWorkspace,
+def test_generate_dag_reads_the_fixture_project(
+    dvc_project: DvcProject,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Generate the raw DAG from an isolated DVC fixture workspace."""
-    dvc_workspace.activate(monkeypatch)
+    """Generate the raw DAG from an isolated DVC fixture project."""
+    dvc_project.activate(monkeypatch)
 
     dag = generate_dag()
 
     assert '"root-train-models@full";' in dag
-    assert '"dvc_pipelines/model/dvc.yaml:nested-train-models@out_of_sample";' in dag
+    assert '"stages/model/dvc.yaml:nested-train-models@out_of_sample";' in dag
     assert '"pipelines/root/data/raw_blue.json.dvc" -> "root-import-data-blue";' in dag
     assert '"root-import-data-blue" -> "root-train-model";' in dag
 
 
 def test_draw_dag_image_collapses_and_trims_the_fixture_graph(
-    dvc_workspace: DvcWorkspace,
+    dvc_project: DvcProject,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Trim transitive edges and collapse parametrized stages in the rendered graph."""
-    dvc_workspace.activate(monkeypatch)
+    dvc_project.activate(monkeypatch)
 
     graph = draw_dag_image(
         remove_transitivities(generate_dag()),
-        path_text_to_delete=["dvc_pipelines/", "tests/"],
+        path_text_to_delete=["pipelines/", "stages/"],
         stage_collapses=[
             "root-train-models=split",
-            "dvc_pipelines/model/dvc.yaml:nested-train-models=split",
+            "stages/model/dvc.yaml:nested-train-models=split",
         ],
         colors_random_seed=12,
     )
@@ -82,37 +82,37 @@ def test_draw_dag_image_collapses_and_trims_the_fixture_graph(
 
     assert "root-train-models@{split}" in node_names
     assert "root-train-models@full" not in node_names
-    assert "dvc_pipelines/model:\nnested-train-models@{split}" in node_names
-    assert "dvc_pipelines/model:\nnested-train-models@out_of_time" not in node_names
+    assert "stages/model:\nnested-train-models@{split}" in node_names
+    assert "stages/model:\nnested-train-models@out_of_time" not in node_names
     assert ("root-import-data-blue", "root-train-model") not in edge_pairs
     assert (
-        "dvc_pipelines/data:\nnested-import-data-blue",
-        "dvc_pipelines/model:\nnested-train-model",
+        "stages/data:\nnested-import-data-blue",
+        "stages/model:\nnested-train-model",
     ) not in edge_pairs
-    assert "features:<BR/>nested-create-dataset" in graph_text
+    assert "model:<BR/>nested-train-models@{split}" in graph_text
     assert "nested/data:<BR/>raw_blue.json.dvc" in graph_text
 
 
-def test_cli_writes_a_png_from_the_fixture_workspace(
-    dvc_workspace: DvcWorkspace,
+def test_cli_writes_a_png_from_the_fixture_project(
+    dvc_project: DvcProject,
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    """Run the CLI end to end against the isolated DVC fixture workspace."""
-    dvc_workspace.activate(monkeypatch)
+    """Run the CLI end to end against the isolated DVC fixture project."""
+    dvc_project.activate(monkeypatch)
 
     output_path = tmp_path / "nested" / "output" / "dag.png"
     result = runner.invoke(
         app,
         [
             "--delete-text",
-            "dvc_pipelines/",
+            "pipelines/",
             "--delete-text",
-            "tests/",
+            "stages/",
             "--collapse-stage",
             "root-train-models=split",
             "--collapse-stage",
-            "dvc_pipelines/model/dvc.yaml:nested-train-models=split",
+            "stages/model/dvc.yaml:nested-train-models=split",
             "--colors-random-seed",
             "12",
             "--out",
@@ -126,22 +126,22 @@ def test_cli_writes_a_png_from_the_fixture_workspace(
     assert f"DAG saved in {output_path}" in result.stdout
 
 
-def test_console_script_writes_a_png_from_the_fixture_workspace(
-    dvc_workspace: DvcWorkspace,
+def test_console_script_writes_a_png_from_the_fixture_project(
+    dvc_project: DvcProject,
     tmp_path: Path,
 ) -> None:
-    """Run the installed console script against the fixture workspace."""
+    """Run the installed console script against the fixture project."""
     output_path = tmp_path / "console-script" / "dag.png"
-    result = dvc_workspace.run_cli(
+    result = dvc_project.run_cli(
         [
             "--delete-text",
-            "dvc_pipelines/",
+            "pipelines/",
             "--delete-text",
-            "tests/",
+            "stages/",
             "--collapse-stage",
             "root-train-models=split",
             "--collapse-stage",
-            "dvc_pipelines/model/dvc.yaml:nested-train-models=split",
+            "stages/model/dvc.yaml:nested-train-models=split",
             "--colors-random-seed",
             "12",
             "--out",
@@ -170,14 +170,14 @@ def test_cli_rejects_invalid_collapse_stage_values() -> None:
 
 
 def test_console_script_reports_not_in_dvc_repo(
-    dvc_workspace: DvcWorkspace,
+    dvc_project: DvcProject,
     tmp_path: Path,
 ) -> None:
     """Report a friendly error outside a DVC repository."""
-    result = dvc_workspace.run_cli(
+    result = dvc_project.run_cli(
         [],
         cwd=tmp_path,
-        env=dvc_workspace.make_env(),
+        env=dvc_project.make_env(),
     )
 
     assert result.returncode == 1
@@ -186,12 +186,12 @@ def test_console_script_reports_not_in_dvc_repo(
 
 
 def test_console_script_reports_missing_dvc(
-    dvc_workspace: DvcWorkspace,
+    dvc_project: DvcProject,
 ) -> None:
     """Report a friendly error when `dvc` is missing from PATH."""
-    result = dvc_workspace.run_cli(
+    result = dvc_project.run_cli(
         [],
-        env=dvc_workspace.make_env(include_dvc=False),
+        env=dvc_project.make_env(include_dvc=False),
     )
 
     assert result.returncode == 1
@@ -200,12 +200,12 @@ def test_console_script_reports_missing_dvc(
 
 
 def test_console_script_reports_missing_tred(
-    dvc_workspace: DvcWorkspace,
+    dvc_project: DvcProject,
 ) -> None:
     """Report a friendly error when Graphviz is unavailable."""
-    result = dvc_workspace.run_cli(
+    result = dvc_project.run_cli(
         [],
-        env=dvc_workspace.make_env(include_graphviz=False),
+        env=dvc_project.make_env(include_graphviz=False),
     )
 
     assert result.returncode == 1
@@ -214,14 +214,14 @@ def test_console_script_reports_missing_tred(
 
 
 def test_console_script_debug_keeps_traceback(
-    dvc_workspace: DvcWorkspace,
+    dvc_project: DvcProject,
     tmp_path: Path,
 ) -> None:
     """Keep traceback-level detail available behind `--debug`."""
-    result = dvc_workspace.run_cli(
+    result = dvc_project.run_cli(
         ["--debug"],
         cwd=tmp_path,
-        env=dvc_workspace.make_env(),
+        env=dvc_project.make_env(),
     )
 
     assert result.returncode == 1
@@ -230,20 +230,20 @@ def test_console_script_debug_keeps_traceback(
 
 
 def test_console_script_supports_version_flag(
-    dvc_workspace: DvcWorkspace,
+    dvc_project: DvcProject,
 ) -> None:
     """Expose the installed package version from the console script."""
-    result = dvc_workspace.run_cli(["--version"])
+    result = dvc_project.run_cli(["--version"])
 
     assert result.returncode == 0
     assert result.stdout.strip() == f"dvc-dag {importlib.metadata.version('dvc-dag')}"
 
 
 def test_module_entrypoint_supports_help(
-    dvc_workspace: DvcWorkspace,
+    dvc_project: DvcProject,
 ) -> None:
     """Expose the CLI via `python -m dvc_dag`."""
-    result = dvc_workspace.run_module(["--help"])
+    result = dvc_project.run_module(["--help"])
 
     assert result.returncode == 0
     assert "Usage" in result.stdout

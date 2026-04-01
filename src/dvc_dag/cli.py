@@ -111,9 +111,9 @@ def main(
     r"""Draw the DVC dag as PNG.
 
     Example:
-        dvc-dag --delete-text "dvc_pipelines/" --delete-text "tests/" \\
+        dvc-dag --delete-text "pipelines/" --delete-text "stages/" \\
             --collapse-stage "train-models=split" \\
-            --collapse-stage "dvc_pipelines/model/dvc.yaml:train-models=split"
+            --collapse-stage "stages/model/dvc.yaml:train-models=split"
     """
     configure_logging(level=logging.DEBUG if debug else logging.INFO)
 
