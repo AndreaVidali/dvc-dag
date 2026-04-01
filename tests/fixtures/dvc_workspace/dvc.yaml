@@ -66,7 +66,7 @@ stages:
       - out_of_time
       - full
     do:
-      cmd: python tests/dvc_pipelines/root/model.py train-model --kind ${item}
+      cmd: python tests/dvc_pipelines/root/model.py train-model --split ${item}
       deps:
         - tests/dvc_pipelines/root/model.py
         - tests/dvc_pipelines/root/files/dataset.json
@@ -81,11 +81,10 @@ stages:
     cmd: dvc-dag
       --delete-text "dvc_pipelines/"
       --delete-text "tests/"
-      --merge-stage "root-train-models|kind"
-      --merge-stage "dvc_pipelines/model/dvc.yaml:nested-train-models|kind"
+      --collapse-stage "root-train-models=split"
+      --collapse-stage "dvc_pipelines/model/dvc.yaml:nested-train-models=split"
       --colors-random-seed 12
       --out docs/dvc_dag.png
     outs:
       - docs/dvc_dag.png:
           cache: false
-    frozen: true

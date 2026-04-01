@@ -59,19 +59,19 @@ def test_generate_dag_reads_the_fixture_workspace(
     assert '"root-import-data-blue" -> "root-train-model";' in dag
 
 
-def test_draw_dag_image_merges_and_trims_the_fixture_graph(
+def test_draw_dag_image_collapses_and_trims_the_fixture_graph(
     dvc_workspace: DvcWorkspace,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Trim transitive edges and merge parametrized stages in the rendered graph."""
+    """Trim transitive edges and collapse parametrized stages in the rendered graph."""
     dvc_workspace.activate(monkeypatch)
 
     graph = draw_dag_image(
         remove_transitivities(generate_dag()),
         path_text_to_delete=["dvc_pipelines/", "tests/"],
-        stage_merges=[
-            "root-train-models|kind",
-            "dvc_pipelines/model/dvc.yaml:nested-train-models|kind",
+        stage_collapses=[
+            "root-train-models=split",
+            "dvc_pipelines/model/dvc.yaml:nested-train-models=split",
         ],
         colors_random_seed=12,
     )
@@ -80,9 +80,9 @@ def test_draw_dag_image_merges_and_trims_the_fixture_graph(
     edge_pairs = _edge_pairs(graph)
     graph_text = graph.to_string()
 
-    assert "root-train-models@kind" in node_names
+    assert "root-train-models@{split}" in node_names
     assert "root-train-models@full" not in node_names
-    assert "dvc_pipelines/model:\nnested-train-models@kind" in node_names
+    assert "dvc_pipelines/model:\nnested-train-models@{split}" in node_names
     assert "dvc_pipelines/model:\nnested-train-models@out_of_time" not in node_names
     assert ("root-import-data-blue", "root-train-model") not in edge_pairs
     assert (
@@ -109,10 +109,10 @@ def test_cli_writes_a_png_from_the_fixture_workspace(
             "dvc_pipelines/",
             "--delete-text",
             "tests/",
-            "--merge-stage",
-            "root-train-models|kind",
-            "--merge-stage",
-            "dvc_pipelines/model/dvc.yaml:nested-train-models|kind",
+            "--collapse-stage",
+            "root-train-models=split",
+            "--collapse-stage",
+            "dvc_pipelines/model/dvc.yaml:nested-train-models=split",
             "--colors-random-seed",
             "12",
             "--out",
@@ -138,10 +138,10 @@ def test_console_script_writes_a_png_from_the_fixture_workspace(
             "dvc_pipelines/",
             "--delete-text",
             "tests/",
-            "--merge-stage",
-            "root-train-models|kind",
-            "--merge-stage",
-            "dvc_pipelines/model/dvc.yaml:nested-train-models|kind",
+            "--collapse-stage",
+            "root-train-models=split",
+            "--collapse-stage",
+            "dvc_pipelines/model/dvc.yaml:nested-train-models=split",
             "--colors-random-seed",
             "12",
             "--out",
@@ -155,18 +155,18 @@ def test_console_script_writes_a_png_from_the_fixture_workspace(
     assert f"DAG saved in {output_path}" in result.stdout
 
 
-def test_cli_rejects_invalid_merge_stage_values() -> None:
-    """Fail fast on invalid merge-stage values before running DVC commands."""
+def test_cli_rejects_invalid_collapse_stage_values() -> None:
+    """Fail fast on invalid collapse-stage values before running DVC commands."""
     result = runner.invoke(
         app,
         [
-            "--merge-stage",
-            "invalid-merge-stage",
+            "--collapse-stage",
+            "invalid-collapse-stage",
         ],
     )
 
     assert result.exit_code == 2
-    assert "Invalid --merge-stage value" in result.output
+    assert "Invalid --collapse-stage value" in result.output
 
 
 def test_console_script_reports_not_in_dvc_repo(

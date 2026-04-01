@@ -69,8 +69,8 @@ stages:
     deps:
     - path: tests/dvc_pipelines/root/model.py
       hash: md5
-      md5: 0c4eb5731a72c53f3bdbd5a7b7895329
-      size: 1492
+      md5: 06bfa6dc47e612efad604b2bd51d67e2
+      size: 1496
     outs:
     - path: tests/dvc_pipelines/root/files/hyperparameters.json
       hash: md5
@@ -93,15 +93,15 @@ stages:
       size: 34
     - path: tests/dvc_pipelines/root/model.py
       hash: md5
-      md5: 0c4eb5731a72c53f3bdbd5a7b7895329
-      size: 1492
+      md5: 06bfa6dc47e612efad604b2bd51d67e2
+      size: 1496
     outs:
     - path: tests/dvc_pipelines/root/files/model.json
       hash: md5
       md5: b6d57d36e990ea1272c4da1ac1968b06
       size: 60
   root-train-models@out_of_sample:
-    cmd: python tests/dvc_pipelines/root/model.py train-model --kind 
+    cmd: python tests/dvc_pipelines/root/model.py train-model --split 
       out_of_sample
     deps:
     - path: tests/dvc_pipelines/root/files/blue.json
@@ -118,15 +118,16 @@ stages:
       size: 34
     - path: tests/dvc_pipelines/root/model.py
       hash: md5
-      md5: 0c4eb5731a72c53f3bdbd5a7b7895329
-      size: 1492
+      md5: 06bfa6dc47e612efad604b2bd51d67e2
+      size: 1496
     outs:
     - path: tests/dvc_pipelines/root/files/model-out_of_sample.json
       hash: md5
       md5: b6d57d36e990ea1272c4da1ac1968b06
       size: 60
   root-train-models@out_of_time:
-    cmd: python tests/dvc_pipelines/root/model.py train-model --kind out_of_time
+    cmd: python tests/dvc_pipelines/root/model.py train-model --split 
+      out_of_time
     deps:
     - path: tests/dvc_pipelines/root/files/blue.json
       hash: md5
@@ -142,15 +143,15 @@ stages:
       size: 34
     - path: tests/dvc_pipelines/root/model.py
       hash: md5
-      md5: 0c4eb5731a72c53f3bdbd5a7b7895329
-      size: 1492
+      md5: 06bfa6dc47e612efad604b2bd51d67e2
+      size: 1496
     outs:
     - path: tests/dvc_pipelines/root/files/model-out_of_time.json
       hash: md5
       md5: b6d57d36e990ea1272c4da1ac1968b06
       size: 60
   root-train-models@full:
-    cmd: python tests/dvc_pipelines/root/model.py train-model --kind full
+    cmd: python tests/dvc_pipelines/root/model.py train-model --split full
     deps:
     - path: tests/dvc_pipelines/root/files/blue.json
       hash: md5
@@ -166,8 +167,8 @@ stages:
       size: 34
     - path: tests/dvc_pipelines/root/model.py
       hash: md5
-      md5: 0c4eb5731a72c53f3bdbd5a7b7895329
-      size: 1492
+      md5: 06bfa6dc47e612efad604b2bd51d67e2
+      size: 1496
     outs:
     - path: tests/dvc_pipelines/root/files/model-full.json
       hash: md5
@@ -175,11 +176,11 @@ stages:
       size: 60
   root-generate-dag:
     cmd: dvc-dag --delete-text "dvc_pipelines/" --delete-text "tests/" 
-      --merge-stage "root-train-models|kind" --merge-stage 
-      "dvc_pipelines/model/dvc.yaml:nested-train-models|kind" 
+      --collapse-stage "root-train-models=split" --collapse-stage 
+      "dvc_pipelines/model/dvc.yaml:nested-train-models=split" 
       --colors-random-seed 12 --out docs/dvc_dag.png
     outs:
     - path: docs/dvc_dag.png
       hash: md5
-      md5: 241f730baf545e31d4d2ab19519a3181
-      size: 233420
+      md5: ad62596208b2c518f9784738f8acbe9d
+      size: 178058

@@ -25,9 +25,9 @@ def find_hyperparameters() -> None:
 
 @app.command()
 def train_model(
-    kind: Annotated[
+    split: Annotated[
         str | None,
-        typer.Option("--kind"),
+        typer.Option("--split"),
     ] = None,
 ) -> None:
     """Train model."""
@@ -50,7 +50,7 @@ def train_model(
     model = {left: right}
 
     directory = Path("tests/dvc_pipelines/nested/files/")
-    filename = f"model-{kind}.json" if kind else "model.json"
+    filename = f"model-{split}.json" if split else "model.json"
     filepath = directory / filename
 
     with filepath.open("w") as file:

@@ -42,44 +42,47 @@ def normalize_graph_name(name: str) -> str:
     return name.replace('"', "").replace("\\", "/")
 
 
-def parse_stage_merge(stage_merge: str) -> tuple[str, str]:
-    """Validate and parse a `--merge-stage` value."""
-    normalized_stage_merge = normalize_graph_name(stage_merge)
-    if normalized_stage_merge.count("|") != 1:
+def parse_stage_collapse(stage_collapse: str) -> tuple[str, str]:
+    """Validate and parse a `--collapse-stage` value."""
+    normalized_stage_collapse = normalize_graph_name(stage_collapse)
+    if normalized_stage_collapse.count("=") != 1:
         msg = (
-            f"Invalid --merge-stage value {stage_merge!r}. "
-            "Expected 'stage_name|replacement' or "
-            "'path/to/dvc.yaml:stage_name|replacement'."
+            f"Invalid --collapse-stage value {stage_collapse!r}. "
+            "Expected 'stage_name=parameter_name' or "
+            "'path/to/dvc.yaml:stage_name=parameter_name'."
         )
         raise ValueError(msg)
 
-    stage_name, replacement = normalized_stage_merge.split("|", maxsplit=1)
-    if not stage_name or not replacement:
+    stage_name, parameter_name = normalized_stage_collapse.split("=", maxsplit=1)
+    if not stage_name or not parameter_name:
         msg = (
-            f"Invalid --merge-stage value {stage_merge!r}. "
-            "Both the stage name and replacement must be non-empty."
+            f"Invalid --collapse-stage value {stage_collapse!r}. "
+            "Both the stage name and parameter name must be non-empty."
         )
         raise ValueError(msg)
 
-    return stage_name, replacement
+    return stage_name, parameter_name
 
 
-def parse_stage_merges(stage_merges: Sequence[str]) -> dict[str, str]:
-    """Return the normalized stage merge mapping."""
-    parsed_stage_merges: dict[str, str] = {}
+def parse_stage_collapses(stage_collapses: Sequence[str]) -> dict[str, str]:
+    """Return the normalized stage-collapse mapping."""
+    parsed_stage_collapses: dict[str, str] = {}
 
-    for stage_merge in stage_merges:
-        stage_name, replacement = parse_stage_merge(stage_merge)
-        if stage_name in parsed_stage_merges and parsed_stage_merges[stage_name] != replacement:
+    for stage_collapse in stage_collapses:
+        stage_name, parameter_name = parse_stage_collapse(stage_collapse)
+        if (
+            stage_name in parsed_stage_collapses
+            and parsed_stage_collapses[stage_name] != parameter_name
+        ):
             msg = (
-                f"Conflicting --merge-stage values were provided for {stage_name!r}: "
-                f"{parsed_stage_merges[stage_name]!r} and {replacement!r}."
+                f"Conflicting --collapse-stage values were provided for {stage_name!r}: "
+                f"{parsed_stage_collapses[stage_name]!r} and {parameter_name!r}."
             )
             raise ValueError(msg)
 
-        parsed_stage_merges[stage_name] = replacement
+        parsed_stage_collapses[stage_name] = parameter_name
 
-    return parsed_stage_merges
+    return parsed_stage_collapses
 
 
 def normalize_endpoint(endpoint: EdgeEndpoint) -> str:
@@ -124,7 +127,7 @@ def get_all_nodes(graph: Dot) -> list[str]:
     return unconnected_nodes + connected_nodes
 
 
-def process_node_name(name: str, stage_merges: Mapping[str, str]) -> str:
+def process_node_name(name: str, stage_collapses: Mapping[str, str]) -> str:
     """Process the name of the node."""
     name = normalize_graph_name(name)
 
@@ -132,8 +135,8 @@ def process_node_name(name: str, stage_merges: Mapping[str, str]) -> str:
     if is_dvc_parametrization:
         # is a stage with parametrization
         stage_name, _parametrization = name.split("@", maxsplit=1)
-        if stage_name in stage_merges:
-            name = f"{stage_name}@{stage_merges[stage_name]}"
+        if stage_name in stage_collapses:
+            name = f"{stage_name}@{{{stage_collapses[stage_name]}}}"
 
     is_nested_dvc_stage = "dvc.yaml:" in name
     is_file = name.endswith(".dvc")
@@ -205,7 +208,7 @@ def format_displayed_name(
 def format_nodes(
     graph_old: Dot,
     path_text_to_delete: Sequence[str],
-    stage_merges: Mapping[str, str],
+    stage_collapses: Mapping[str, str],
     colors_random_seed: int,
 ) -> dict[str, dict[str, str | int]]:
     """Format and filter the nodes."""
@@ -215,7 +218,7 @@ def format_nodes(
     nodes_to_add: dict[str, dict[str, str | int]] = {}
 
     for node in all_nodes:
-        name = process_node_name(node, stage_merges=stage_merges)
+        name = process_node_name(node, stage_collapses=stage_collapses)
         options = deepcopy(DEFAULT_NODE_OPTIONS)
 
         if name.endswith('.dvc"'):  # is file
@@ -248,7 +251,10 @@ def format_nodes(
     return nodes_to_add
 
 
-def format_edges(graph_old: Dot, stage_merges: Mapping[str, str]) -> dict[str, dict[str, str]]:
+def format_edges(
+    graph_old: Dot,
+    stage_collapses: Mapping[str, str],
+) -> dict[str, dict[str, str]]:
     """Format the edges."""
     edges_to_add: dict[str, dict[str, str]] = {}
 
@@ -256,8 +262,8 @@ def format_edges(graph_old: Dot, stage_merges: Mapping[str, str]) -> dict[str, d
         source = normalize_endpoint(edge.get_source())
         dest = normalize_endpoint(edge.get_destination())
 
-        display_source = process_node_name(source, stage_merges=stage_merges)
-        display_dest = process_node_name(dest, stage_merges=stage_merges)
+        display_source = process_node_name(source, stage_collapses=stage_collapses)
+        display_dest = process_node_name(dest, stage_collapses=stage_collapses)
 
         options = deepcopy(DEFAULT_EDGE_OPTIONS)
         encoded_name = encode_edge_name(display_source, display_dest)
@@ -279,13 +285,13 @@ def format_edges(graph_old: Dot, stage_merges: Mapping[str, str]) -> dict[str, d
 def draw_dag_image(
     dag: str,
     path_text_to_delete: Sequence[str],
-    stage_merges: Sequence[str],
+    stage_collapses: Sequence[str],
     colors_random_seed: int,
 ) -> Dot:
     """Starting from a dot file, process it and return the final dag."""
     graph_new = Dot(graph_type="digraph")
 
-    parsed_stage_merges = parse_stage_merges(stage_merges)
+    parsed_stage_collapses = parse_stage_collapses(stage_collapses)
 
     try:
         graphs = pydot.graph_from_dot_data(dag)
@@ -302,7 +308,7 @@ def draw_dag_image(
     nodes_to_add = format_nodes(
         graph_old,
         path_text_to_delete=path_text_to_delete,
-        stage_merges=parsed_stage_merges,
+        stage_collapses=parsed_stage_collapses,
         colors_random_seed=colors_random_seed,
     )
 
@@ -311,7 +317,7 @@ def draw_dag_image(
 
     edges_to_add = format_edges(
         graph_old,
-        stage_merges=parsed_stage_merges,
+        stage_collapses=parsed_stage_collapses,
     )
 
     for name, options in edges_to_add.items():

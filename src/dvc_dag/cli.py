@@ -13,7 +13,7 @@ from dvc_dag.draw import (
     draw_dag_image,
     ensure_graphviz_dot,
     generate_dag,
-    parse_stage_merges,
+    parse_stage_collapses,
     remove_transitivities,
 )
 from dvc_dag.logger import configure_logging, logger
@@ -87,15 +87,15 @@ def main(
             ),
         ),
     ] = None,
-    merge_stage: Annotated[
+    collapse_stage: Annotated[
         list[str] | None,
         typer.Option(
-            "--merge-stage",
+            "--collapse-stage",
             help=(
-                "Delete the parametrization part of a parametrize stage by collapsing all "
-                "stages into one. Can be specified multiple times. "
-                "Format: 'stage_name|replacement' or "
-                "'path/to/dvc.yaml:stage_name|replacement'"
+                "Collapse a parametrized stage by replacing concrete values with the chosen "
+                "parameter name. Can be specified multiple times. "
+                "Format: 'stage_name=parameter_name' or "
+                "'path/to/dvc.yaml:stage_name=parameter_name'"
             ),
         ),
     ] = None,
@@ -112,19 +112,19 @@ def main(
 
     Example:
         dvc-dag --delete-text "dvc_pipelines/" --delete-text "tests/" \\
-            --merge-stage "train-models|kind" \\
-            --merge-stage "dvc_pipelines/model/dvc.yaml:train-models|kind"
+            --collapse-stage "train-models=split" \\
+            --collapse-stage "dvc_pipelines/model/dvc.yaml:train-models=split"
     """
     configure_logging(level=logging.DEBUG if debug else logging.INFO)
 
     delete_text_values = delete_text or []
-    merge_stage_values = merge_stage or []
+    collapse_stage_values = collapse_stage or []
     out = out.expanduser()
 
     try:
-        parse_stage_merges(merge_stage_values)
+        parse_stage_collapses(collapse_stage_values)
     except ValueError as exc:
-        raise typer.BadParameter(str(exc), param_hint="--merge-stage") from exc
+        raise typer.BadParameter(str(exc), param_hint="--collapse-stage") from exc
 
     try:
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -145,7 +145,7 @@ def main(
         dag_image = draw_dag_image(
             dag_tred,
             path_text_to_delete=delete_text_values,
-            stage_merges=merge_stage_values,
+            stage_collapses=collapse_stage_values,
             colors_random_seed=colors_random_seed,
         )
     except DvcDagError as exc:

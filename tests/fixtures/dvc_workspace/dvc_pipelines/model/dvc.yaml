@@ -28,7 +28,7 @@ stages:
       - out_of_time
       - full
     do:
-      cmd: python tests/dvc_pipelines/nested/model.py train-model --kind ${item}
+      cmd: python tests/dvc_pipelines/nested/model.py train-model --split ${item}
       wdir: "../.."
       deps:
         - tests/dvc_pipelines/nested/model.py

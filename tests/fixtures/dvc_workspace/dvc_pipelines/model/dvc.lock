@@ -37,7 +37,7 @@ stages:
       md5: b6d57d36e990ea1272c4da1ac1968b06
       size: 60
   nested-train-models@out_of_sample:
-    cmd: python tests/dvc_pipelines/nested/model.py train-model --kind 
+    cmd: python tests/dvc_pipelines/nested/model.py train-model --split 
       out_of_sample
     deps:
     - path: tests/dvc_pipelines/nested/files/blue.json
@@ -62,7 +62,7 @@ stages:
       md5: b6d57d36e990ea1272c4da1ac1968b06
       size: 60
   nested-train-models@out_of_time:
-    cmd: python tests/dvc_pipelines/nested/model.py train-model --kind 
+    cmd: python tests/dvc_pipelines/nested/model.py train-model --split 
       out_of_time
     deps:
     - path: tests/dvc_pipelines/nested/files/blue.json
@@ -87,7 +87,7 @@ stages:
       md5: b6d57d36e990ea1272c4da1ac1968b06
       size: 60
   nested-train-models@full:
-    cmd: python tests/dvc_pipelines/nested/model.py train-model --kind full
+    cmd: python tests/dvc_pipelines/nested/model.py train-model --split full
     deps:
     - path: tests/dvc_pipelines/nested/files/blue.json
       hash: md5

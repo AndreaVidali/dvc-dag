@@ -52,7 +52,6 @@ def test_wheel_contains_runtime_files_only(
     assert "dvc_dag/py.typed" in names
     assert f"{dist_info}/licenses/LICENSE" in names
     assert "tests/test_dag_e2e.py" not in names
-    assert "docs/dvc_dag.png" not in names
     assert "dvc-dag = dvc_dag.cli:app" in entry_points
 
 
@@ -72,7 +71,6 @@ def test_sdist_contains_curated_release_files(
     assert f"{root}/README.md" in names
     assert f"{root}/LICENSE" in names
     assert f"{root}/CHANGELOG.md" in names
-    assert f"{root}/docs/dvc_dag.png" in names
     assert not any(name.startswith(f"{root}/tests/") for name in names)
     assert not any(name.startswith(f"{root}/.github/") for name in names)
     assert f"{root}/Makefile" not in names

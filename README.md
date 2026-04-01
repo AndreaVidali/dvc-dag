@@ -68,14 +68,14 @@ dvc-dag --version
 Collapse parameterized stages:
 
 ```bash
-dvc-dag --merge-stage "train-models|kind"
+dvc-dag --collapse-stage "train-models=split"
 ```
 
-The `--merge-stage` format is:
+The `--collapse-stage` format is:
 
 ```text
-stage_name|replacement
-path/to/dvc.yaml:stage_name|replacement
+stage_name=parameter_name
+path/to/dvc.yaml:stage_name=parameter_name
 ```
 
 ## Troubleshooting

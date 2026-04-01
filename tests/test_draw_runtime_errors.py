@@ -22,7 +22,7 @@ def test_draw_dag_image_reports_dot_parse_failures(monkeypatch: pytest.MonkeyPat
         draw.draw_dag_image(
             "digraph { broken }",
             path_text_to_delete=[],
-            stage_merges=[],
+            stage_collapses=[],
             colors_random_seed=42,
         )
 
