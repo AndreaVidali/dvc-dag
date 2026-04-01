@@ -7,6 +7,24 @@ on:
       - main
 
 jobs:
+  changelog-check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v8.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Check changelog and version bump
+        run: >
+          python scripts/check_changelog.py
+          --base-ref "${{ github.event.pull_request.base.sha }}"
+          --head-ref "${{ github.event.pull_request.head.sha }}"
+
   static-checks:
     runs-on: ubuntu-latest
     steps:
