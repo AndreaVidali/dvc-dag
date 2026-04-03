@@ -38,6 +38,7 @@ def test_validate_published_release_accepts_matching_metadata() -> None:
             tag_name="0.0.3",
             project_version="0.0.3",
             changelog_version="0.0.3",
+            tag_is_on_main=True,
         )
         == []
     )
@@ -49,6 +50,7 @@ def test_validate_published_release_requires_the_tag_to_match_pyproject() -> Non
         tag_name="0.0.4",
         project_version="0.0.3",
         changelog_version="0.0.3",
+        tag_is_on_main=True,
     )
 
     assert "does not match [project].version" in errors[0]
@@ -60,6 +62,19 @@ def test_validate_published_release_requires_the_changelog_to_match_pyproject() 
         tag_name="0.0.3",
         project_version="0.0.3",
         changelog_version="0.0.2",
+        tag_is_on_main=True,
     )
 
     assert "latest version in CHANGELOG.md does not match" in errors[0]
+
+
+def test_validate_published_release_requires_the_tag_commit_to_be_on_main() -> None:
+    """Reject releases that were not tagged from a commit on main."""
+    errors = validate_published_release(
+        tag_name="0.0.3",
+        project_version="0.0.3",
+        changelog_version="0.0.3",
+        tag_is_on_main=False,
+    )
+
+    assert "not reachable from the main branch" in errors[0]
