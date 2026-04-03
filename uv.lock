@@ -804,7 +804,7 @@ wheels = [
 
 [[package]]
 name = "dvc-dag"
-version = "0.0.2"
+version = "0.0.3"
 source = { editable = "." }
 dependencies = [
     { name = "dvc" },
@@ -821,6 +821,7 @@ dev = [
     { name = "ipython", version = "9.10.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
     { name = "ipython", version = "9.12.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "mbake" },
+    { name = "mdformat" },
     { name = "pdbpp" },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -843,6 +844,7 @@ dev = [
     { name = "deptry", specifier = ">=0.23.0" },
     { name = "ipython", specifier = ">=8.31.0" },
     { name = "mbake", specifier = ">=1.4.6" },
+    { name = "mdformat", specifier = ">=0.7.22" },
     { name = "pdbpp", specifier = ">=0.10.3" },
     { name = "pre-commit", specifier = ">=4.2.0" },
     { name = "pytest", specifier = ">=8.3.4" },
@@ -1423,6 +1425,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/27/7a/71331f29bfe3fa4c312d05556759e9aacb7f9fa90f5f39aaaa9de46bd995/mbake-1.4.6.tar.gz", hash = "sha256:31b91955326150e7bd7a5abb4e9dc40acde7c2f892edeb4e1abb8b10b19f8113", size = 3081153, upload-time = "2026-03-31T08:03:41.69Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/84/83/0ecabd3c6afca46387adf212289867327b77afa973584c3dac9b913aac36/mbake-1.4.6-py3-none-any.whl", hash = "sha256:8c7055b0961769a53b0e401ea2dee9f9096e63d7f58149bb29d6757fd52dbbf0", size = 82321, upload-time = "2026-03-31T08:03:40.056Z" },
+]
+
+[[package]]
+name = "mdformat"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "markdown-it-py" },
+    { name = "tomli", marker = "python_full_version < '3.11'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3f/05/32b5e14b192b0a8a309f32232c580aefedd9d06017cb8fe8fce34bec654c/mdformat-1.0.0.tar.gz", hash = "sha256:4954045fcae797c29f86d4ad879e43bb151fa55dbaf74ac6eaeacf1d45bb3928", size = 56953, upload-time = "2025-10-16T12:05:03.695Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/54/9a/8fe71b95985ca7a4001effbcc58e5a07a1f2a2884203f74dcf48a3b08315/mdformat-1.0.0-py3-none-any.whl", hash = "sha256:bca015d65a1d063a02e885a91daee303057bc7829c2cd37b2075a50dbb65944b", size = 53288, upload-time = "2025-10-16T12:05:02.607Z" },
 ]
 
 [[package]]

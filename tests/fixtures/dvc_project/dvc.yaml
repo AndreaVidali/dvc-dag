@@ -46,7 +46,7 @@ stages:
       --delete-text "pipelines/"
       --delete-text "stages/"
       --collapse-stage "stages/model/dvc.yaml:train-candidate-models=family"
-      --colors-random-seed 12
+      --colors-random-seed 2
       --out docs/dvc_project_dag.png
     deps:
       - ../../../src/dvc_dag/cli.py

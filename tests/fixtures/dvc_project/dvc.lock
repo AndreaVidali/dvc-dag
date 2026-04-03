@@ -75,7 +75,7 @@ stages:
   publish-project-dag:
     cmd: dvc-dag --delete-text "pipelines/" --delete-text "stages/" 
       --collapse-stage "stages/model/dvc.yaml:train-candidate-models=family" 
-      --colors-random-seed 12 --out docs/dvc_project_dag.png
+      --colors-random-seed 2 --out docs/dvc_project_dag.png
     deps:
     - path: ../../../src/dvc_dag/cli.py
       hash: md5
@@ -104,5 +104,5 @@ stages:
     outs:
     - path: docs/dvc_project_dag.png
       hash: md5
-      md5: c7965057000deaae2399d26e2671baec
-      size: 218641
+      md5: a0c19084ef9944a4ac677a399690f2a8
+      size: 210666

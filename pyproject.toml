@@ -1,6 +1,6 @@
 [project]
 name = "dvc-dag"
-version = "0.0.2"
+version = "0.0.3"
 description = "Generate a clear diagram of your DVC pipeline."
 readme = "README.md"
 authors = [{ name = "Andrea Vidali", email = "andreavidali.me@gmail.com" }]
@@ -40,6 +40,7 @@ dev = [
   "deptry>=0.23.0",
   "ipython>=8.31.0",
   "mbake>=1.4.6",
+  "mdformat>=0.7.22",
   "pdbpp>=0.10.3",
   "pre-commit>=4.2.0",
   "pytest>=8.3.4",

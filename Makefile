@@ -18,12 +18,14 @@ hooks: ## install pre-commit hooks
 .PHONY: format
 format: ## format and autofix code
 	uv run uv-sort pyproject.toml
+	uv run mdformat README.md CHANGELOG.md
 	uv run ruff format src tests
 	uv run ruff check --fix src tests
 
 .PHONY: lint
 lint: ## lint code without modifying files
 	uv run uv-sort --check pyproject.toml
+	uv run mdformat --check README.md CHANGELOG.md
 	uv run ruff check src tests
 
 .PHONY: test
