@@ -14,6 +14,14 @@ repos:
         stages:
           - pre-commit
 
+      - id: mdformat-readme
+        name: mdformat README
+        entry: uv run mdformat
+        language: system
+        files: ^(README|CHANGELOG)\.md$
+        stages:
+          - pre-commit
+
       - id: ruff-format
         name: ruff format
         entry: uv run ruff
