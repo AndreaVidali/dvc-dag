@@ -804,7 +804,7 @@ wheels = [
 
 [[package]]
 name = "dvc-dag"
-version = "0.0.2"
+version = "0.0.3"
 source = { editable = "." }
 dependencies = [
     { name = "dvc" },

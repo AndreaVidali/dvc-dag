@@ -11,6 +11,12 @@ Here is the syntax:
 > - ⚡️ (fixed) for any fixes.
 > - ❌ (removed) for now removed features.
 
+## 0.0.3 - 2026/04/03
+
+- ❇️ Added funding.
+- ❇️ Added .md formatter.
+- ⚙️ Improved colors on dag in README.
+
 ## 0.0.2 - 2026/04/01
 
 - ⚙️ Improved README.
