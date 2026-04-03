@@ -14,17 +14,3 @@ Here is the syntax:
 ## 0.1.0 - 2026/04/03
 
 - ❇️ Added release to PyPI workflow.
-
-## 0.0.3 - 2026/04/03
-
-- ❇️ Added funding.
-- ❇️ Added .md formatter.
-- ⚙️ Improved colors on dag in README.
-
-## 0.0.2 - 2026/04/01
-
-- ⚙️ Improved README.
-
-## 0.0.1 - 2026/03/30
-
-- ❇️ First release.

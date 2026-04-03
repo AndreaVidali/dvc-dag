@@ -2,9 +2,14 @@
 
 Generate a readable PNG diagram of your DVC pipeline.
 
+[![image](https://img.shields.io/pypi/v/dvc-dag.svg)](https://pypi.python.org/pypi/dvc-dag)
+[![image](https://img.shields.io/pypi/l/dvc-dag.svg)](https://github.com/AndreaVidali/dvc-dag/blob/main/LICENSE)
+[![image](https://img.shields.io/pypi/pyversions/dvc-dag.svg)](https://pypi.python.org/pypi/dvc-dag)
+[![Actions status](https://github.com/AndreaVidali/dvc-dag/workflows/CI/badge.svg)](https://github.com/AndreaVidali/dvc-dag/actions)
+
 <div align="center">
 <br>
-<img src="https://raw.githubusercontent.com/AndreaVidali/dvc-dag/refs/heads/main/docs/dvc_project_dag.png" alt="Example DVC DAG" width="70%">
+<img src="https://raw.githubusercontent.com/AndreaVidali/dvc-dag/refs/heads/main/docs/dvc_project_dag.png" alt="Example DVC DAG" width="60%">
 </div>
 
 ## Overview
@@ -118,6 +123,8 @@ dvc-dag \
 
 The repository includes a committed DVC fixture project under `tests/fixtures/`
 for end-to-end testing.
+
+The release workflow is documented in [`docs/releasing.md`](docs/releasing.md).
 
 You can try the CLI manually against the committed fixture project:
 
