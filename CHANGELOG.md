@@ -11,6 +11,10 @@ Here is the syntax:
 > - ⚡️ (fixed) for any fixes.
 > - ❌ (removed) for now removed features.
 
+## 0.1.0 - 2026/04/03
+
+- ❇️ Added release to PyPI workflow.
+
 ## 0.0.3 - 2026/04/03
 
 - ❇️ Added funding.
