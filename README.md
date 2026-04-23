@@ -12,6 +12,61 @@ Generate a readable PNG diagram of your DVC pipeline.
 <img src="https://raw.githubusercontent.com/AndreaVidali/dvc-dag/refs/heads/main/docs/dvc_project_dag.png" alt="Example DVC DAG" width="60%">
 </div>
 
+<br>
+From this (`dvc dag --collapse-foreach-matrix --md`):
+<br><br>
+
+```mermaid
+flowchart TD
+	node1["build-analytics-base"]
+	node2["data/listings_raw.json.dvc"]
+	node3["data/market_comps_raw.json.dvc"]
+	node4["data/neighborhood_profiles_raw.json.dvc"]
+	node5["publish-project-dag"]
+	node6["stages/data/dvc.yaml:join-market-context"]
+	node7["stages/data/dvc.yaml:normalize-comps"]
+	node8["stages/data/dvc.yaml:normalize-listings"]
+	node9["stages/features/dvc.yaml:assemble-feature-matrix"]
+	node10["stages/features/dvc.yaml:build-location-features"]
+	node11["stages/features/dvc.yaml:build-property-features"]
+	node12["stages/model/dvc.yaml:build-model-card"]
+	node13["stages/model/dvc.yaml:evaluate-model"]
+	node14["stages/model/dvc.yaml:search-hyperparameters"]
+	node15["stages/model/dvc.yaml:train-baseline-model"]
+	node16["stages/model/dvc.yaml:train-candidate-models"]
+	node17["sync-listings"]
+	node18["sync-market-comps"]
+	node19["sync-neighborhood-profiles"]
+	node1-->node6
+	node2-->node17
+	node3-->node18
+	node4-->node19
+	node6-->node10
+	node6-->node11
+	node6-->node15
+	node6-->node16
+	node7-->node6
+	node8-->node6
+	node9-->node13
+	node9-->node14
+	node9-->node15
+	node9-->node16
+	node10-->node9
+	node11-->node9
+	node12-->node5
+	node13-->node12
+	node14-->node15
+	node14-->node16
+	node15-->node5
+	node15-->node12
+	node15-->node13
+	node17-->node1
+	node17-->node8
+	node18-->node1
+	node18-->node7
+	node19-->node1
+```
+
 ## Overview
 
 The bundled `dvc dag` command is useful, but larger pipelines quickly become hard to read.
