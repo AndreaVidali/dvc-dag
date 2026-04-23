@@ -42,9 +42,10 @@ dev = [
   "mbake>=1.4.6",
   "mdformat>=0.7.22",
   "pdbpp>=0.10.3",
-  "pre-commit>=4.2.0",
+  "prek>=0.3.10",
   "pytest>=8.3.4",
   "ruff>=0.9.4",
+  "taplo>=0.9.3",
   "ty>=0.0.26",
   "uv-sort>=0.6.0",
 ]

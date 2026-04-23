@@ -2,6 +2,8 @@
 SHELL = bash
 BUILD_OUTPUT_DIR ?= dist
 SMOKE_VENV ?= /tmp/dvc-dag-smoke-venv
+TOML_FILES := pyproject.toml prek.toml
+MD_FILES := README.md CHANGELOG.md
 
 .PHONY: help
 help: ## show this help
@@ -12,20 +14,25 @@ install: ## install dependencies
 	uv sync
 
 .PHONY: hooks
-hooks: ## install pre-commit hooks
-	uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre-push
+hooks: ## install prek hooks
+	uv run prek install --prepare-hooks --overwrite
 
 .PHONY: format
 format: ## format and autofix code
 	uv run uv-sort pyproject.toml
-	uv run mdformat README.md CHANGELOG.md
+	uv run taplo fmt $(TOML_FILES)
+	uv run mbake format Makefile
+	uv run mdformat $(MD_FILES)
 	uv run ruff format src tests
 	uv run ruff check --fix src tests
 
 .PHONY: lint
 lint: ## lint code without modifying files
 	uv run uv-sort --check pyproject.toml
-	uv run mdformat --check README.md CHANGELOG.md
+	uv run taplo fmt --check $(TOML_FILES)
+	uv run mbake format --check Makefile
+	uv run mbake validate Makefile
+	uv run mdformat --check $(MD_FILES)
 	uv run ruff check src tests
 
 .PHONY: test

@@ -1,0 +1,83 @@
+default_install_hook_types = ["pre-commit", "pre-push"]
+
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "uv-sort"
+name = "uv-sort"
+entry = "uv run uv-sort"
+language = "system"
+files = '^pyproject\.toml$'
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "taplo-format"
+name = "taplo fmt"
+entry = "uv run taplo"
+args = ["fmt"]
+language = "system"
+types = ["toml"]
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "mbake-format"
+name = "mbake format"
+entry = "uv run mbake"
+args = ["format"]
+language = "system"
+files = "^Makefile$"
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "mdformat-readme"
+name = "mdformat README"
+entry = "uv run mdformat"
+language = "system"
+files = '^(README|CHANGELOG)\.md$'
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "ruff-format"
+name = "ruff format"
+entry = "uv run ruff"
+args = ["format"]
+language = "system"
+types_or = ["python", "pyi"]
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "ruff-check"
+name = "ruff check --fix"
+entry = "uv run ruff"
+args = ["check", "--fix"]
+language = "system"
+types_or = ["python", "pyi"]
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "ty-check"
+name = "ty check"
+entry = "uv run ty"
+args = ["check"]
+language = "system"
+pass_filenames = false
+stages = ["pre-push"]
+
+[[repos.hooks]]
+id = "deptry"
+name = "deptry"
+entry = "uv run deptry"
+args = ["."]
+language = "system"
+pass_filenames = false
+stages = ["pre-push"]
+
+[[repos.hooks]]
+id = "pytest"
+name = "pytest"
+entry = "uv run pytest"
+args = ["tests"]
+language = "system"
+pass_filenames = false
+stages = ["pre-push"]
