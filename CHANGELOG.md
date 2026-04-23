@@ -11,6 +11,10 @@ Here is the syntax:
 > - ⚡️ (fixed) for any fixes.
 > - ❌ (removed) for now removed features.
 
+## 0.2.0 - 2026/04/23
+
+- ⚙️ Render all nodes as boxes.
+
 ## 0.1.0 - 2026/04/03
 
 - ❇️ Added release to PyPI workflow.

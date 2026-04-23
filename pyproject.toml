@@ -1,6 +1,6 @@
 [project]
 name = "dvc-dag"
-version = "0.1.0"
+version = "0.2.0"
 description = "Generate a clear diagram of your DVC pipeline."
 readme = "README.md"
 authors = [{ name = "Andrea Vidali", email = "andreavidali.me@gmail.com" }]
