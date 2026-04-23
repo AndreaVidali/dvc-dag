@@ -87,8 +87,8 @@ stages:
       size: 1768
     - path: ../../../src/dvc_dag/draw.py
       hash: md5
-      md5: 66c3b8da0f51e67e54ea4543998a9826
-      size: 12036
+      md5: 0b5b6bc4095db533903e92367fec20e1
+      size: 12098
     - path: ../../../src/dvc_dag/logger.py
       hash: md5
       md5: af1ab33e89475eefcf493d931ee69d67
@@ -104,5 +104,5 @@ stages:
     outs:
     - path: docs/dvc_project_dag.png
       hash: md5
-      md5: a0c19084ef9944a4ac677a399690f2a8
-      size: 210666
+      md5: b5d73668c78f154733699aea2086ffe9
+      size: 118029

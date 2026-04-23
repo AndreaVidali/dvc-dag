@@ -21,13 +21,16 @@ if TYPE_CHECKING:
 
     from pydot.classes import EdgeEndpoint
 
+NodeOptionValue = str | int | float
 
 ROOT_CATEGORY = "root"
 EDGE_NAME_SEPARATOR = "***"
-DEFAULT_NODE_OPTIONS: dict[str, str | int] = {
+DEFAULT_NODE_OPTIONS: dict[str, NodeOptionValue] = {
     "fontsize": 20,
     "penwidth": "2",
     "fontname": "Cambria",
+    "shape": "box",
+    "margin": 0.2,
 }
 DEFAULT_EDGE_OPTIONS: dict[str, str] = {
     "penwidth": "2",
@@ -95,7 +98,7 @@ def normalize_endpoint(endpoint: EdgeEndpoint) -> str:
     raise TypeError(msg)
 
 
-def make_node(name: str, options: Mapping[str, str | int]) -> Node:
+def make_node(name: str, options: Mapping[str, NodeOptionValue]) -> Node:
     """Return a pydot node with the provided attributes."""
     node = Node(name)
     node.obj_dict["attributes"] = dict(options)
@@ -211,19 +214,18 @@ def format_nodes(
     path_text_to_delete: Sequence[str],
     stage_collapses: Mapping[str, str],
     colors_random_seed: int,
-) -> dict[str, dict[str, str | int]]:
+) -> dict[str, dict[str, NodeOptionValue]]:
     """Format and filter the nodes."""
     colors = Colors(random_seed=colors_random_seed)
 
     all_nodes = get_all_nodes(graph_old)
-    nodes_to_add: dict[str, dict[str, str | int]] = {}
+    nodes_to_add: dict[str, dict[str, NodeOptionValue]] = {}
 
     for node in all_nodes:
         name = process_node_name(node, stage_collapses=stage_collapses)
         options = deepcopy(DEFAULT_NODE_OPTIONS)
 
         if name.endswith('.dvc"'):  # is file
-            options["shape"] = "box"
             options["label"] = format_displayed_name(
                 name,
                 path_text_to_delete=path_text_to_delete,
