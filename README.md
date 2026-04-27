@@ -22,7 +22,7 @@ improvements:
 - trims transitive edges
 - collapses parameterized stages when requested
 - simplifies displayed paths
-- uses colors and shapes to distinguish nodes
+- uses colors to distinguish nodes
 
 ## Requirements
 
